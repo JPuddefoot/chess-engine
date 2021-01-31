@@ -2,7 +2,7 @@
 
 Engine connected to graphical board that gives position evaluation and moves pieces for a side.
 
-### Todo list
+## Todo list
 
 - [] Board Representation
 - [] Search
@@ -10,9 +10,9 @@ Engine connected to graphical board that gives position evaluation and moves pie
 - [] Connect to GUI
 
 
-### Board Representation
+## Board Representation
 
-#### Bitboards
+### Bitboards
 
 finite set up to 64 elements - one bit per board square
 
@@ -41,3 +41,11 @@ Normal bitboards - generate move patterns
 pawns/kings etc can shift bits left/right = moving a square
 
 Need to have a full board with every piece on
+
+
+#### Pawns
+
+Push all pawns by shifting one rank (double if needed) - intersect with empty squares
+Create disjoint sets for east-west attacks intersect with files for a and h files - reverse shift to get full attack set
+Capture is intersect with opponent pieces
+Additional rules for en passant
