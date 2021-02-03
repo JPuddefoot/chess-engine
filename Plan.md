@@ -40,7 +40,7 @@ Normal bitboards - generate move patterns
 
 pawns/kings etc can shift bits left/right = moving a square
 
-Need to have a full board with every piece on
+Need to have a full board with every piece on - two boards with white/black
 
 
 #### Pawns

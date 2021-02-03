@@ -1,7 +1,9 @@
-#include <bitset>
+#include "utils.h"
 
 class WhitePawnSet {
     public:
-       std::bitset<64> bitboard;
-       void InitBitboard();
+       bitboard_t bitboard;
+       void initBitboard();
+       void pushPawns(const bitboard_t & white_pieces,
+        const bitboard_t & black_pieces);
 };
