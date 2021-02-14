@@ -1,3 +1,6 @@
+#ifndef utils_h
+#define utils_h
+
 #include <string>
 #include <bitset>
 
@@ -10,5 +13,5 @@ typedef std::bitset<64> bitboard_t;
 std::string bitboard_to_string(const bitboard_t & bitboard);
 
 
-
+#endif
 

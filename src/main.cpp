@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 
 #include "WhitePawnSet.h"
 #include "utils.h"
@@ -15,7 +16,14 @@ int main() {
     WhitePawnSet WhitePawns;
 
     WhitePawns.initBitboard();
-    WhitePawns.attackRight(white_pieces, black_pieces);
+
+    std::vector<Move> moveList = {};
+    WhitePawns.generateMoves(white_pieces, black_pieces, moveList);
+
+    for (Move move : moveList) {
+        std::cout << "Origin: " << Square_array[static_cast<int>(move.origin)] <<
+        " Destination: " << Square_array[static_cast<int>(move.destination)] << "\n";
+    }
 
 
     return 0;
