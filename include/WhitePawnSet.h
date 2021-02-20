@@ -15,6 +15,7 @@ class WhitePawnSet {
         void initBitboard();
         void generateMoves(const bitboard_t & white_pieces,
             const bitboard_t & black_pieces, std::vector<Move> & moveList);
+    private:
         bitboard_t pushPawns(const bitboard_t & white_pieces,
             const bitboard_t & black_pieces);
         bitboard_t pushDouble(const bitboard_t & white_pieces,

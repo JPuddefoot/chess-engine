@@ -92,13 +92,10 @@ void WhitePawnSet::generateMoves(const bitboard_t & white_pieces,
         // generate moves from left attack
         bitboard_t left_attack_pawns = this->attackLeft(white_pieces,
             black_pieces);
-        std::cout << bitboard_to_string(left_attack_pawns);
-
         if (left_attack_pawns.any()) {
             for (std::size_t i=0; i<left_attack_pawns.size(); i++) {
                 if (left_attack_pawns.test(i)) {
                     int bit_num = static_cast<int>(i);
-                    std::cout << bit_num;
                     Square destination = static_cast<Square>(bit_num);
                     Square origin = static_cast<Square>(bit_num+7);
                     moveList.push_back(Move {origin, destination});
