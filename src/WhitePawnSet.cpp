@@ -25,14 +25,12 @@ bitboard_t WhitePawnSet::pushDouble(const bitboard_t & white_pieces,
         bitboard_t allowed_double = this->currentPos & this->initialPos;
         // shift by 2 rows
         allowed_double = (allowed_double >> 16);
-        std::cout << bitboard_to_string(allowed_double);
         // shift black pieces back a row to test if piece blocking pawn from moving
         allowed_double = (allowed_double & (black_pieces >> 8)) ^ allowed_double;
-
         return allowed_double;
     }
 // Produce bitboard (or list?) of all possible pawn attacks to the left
-void WhitePawnSet::attackLeft(const bitboard_t & white_pieces,
+bitboard_t WhitePawnSet::attackLeft(const bitboard_t & white_pieces,
     const bitboard_t & black_pieces) {
 
         bitboard_t leftFileMask = bitboard_t(std::string("1000000010000000100000001000000010000000100000001000000010000000"));
@@ -41,9 +39,10 @@ void WhitePawnSet::attackLeft(const bitboard_t & white_pieces,
         shifted_bitboard ^= (shifted_bitboard & leftFileMask);
         shifted_bitboard >>= 7;
         shifted_bitboard &= black_pieces;
+        return shifted_bitboard;
 }
 
-void WhitePawnSet::attackRight(const bitboard_t & white_pieces,
+bitboard_t WhitePawnSet::attackRight(const bitboard_t & white_pieces,
     const bitboard_t & black_pieces) {
 
         bitboard_t rightFileMask = bitboard_t(std::string("0000000100000001000000010000000100000001000000010000000100000001"));
@@ -52,6 +51,7 @@ void WhitePawnSet::attackRight(const bitboard_t & white_pieces,
         shifted_bitboard ^= (shifted_bitboard & rightFileMask);
         shifted_bitboard >>= 9;
         shifted_bitboard &= black_pieces;
+        return shifted_bitboard;
     }
 
 void WhitePawnSet::generateMoves(const bitboard_t & white_pieces,
@@ -60,7 +60,6 @@ void WhitePawnSet::generateMoves(const bitboard_t & white_pieces,
         // generate moves from pawn single push
         bitboard_t single_push_pawns = this->pushPawns(white_pieces,
             black_pieces);
-        std::cout << bitboard_to_string(single_push_pawns);
         // check if any bits are set to 1 (i.e valid moves exist)
         if (single_push_pawns.any()) {
             // go through bitboard of possible pawn pushes
@@ -86,6 +85,35 @@ void WhitePawnSet::generateMoves(const bitboard_t & white_pieces,
                     int bit_num = static_cast<int>(i);
                     Square destination = static_cast<Square>(bit_num);
                     Square origin = static_cast<Square>(bit_num+16);
+                    moveList.push_back(Move {origin, destination});
+                }
+            }
+        }
+        // generate moves from left attack
+        bitboard_t left_attack_pawns = this->attackLeft(white_pieces,
+            black_pieces);
+        std::cout << bitboard_to_string(left_attack_pawns);
+
+        if (left_attack_pawns.any()) {
+            for (std::size_t i=0; i<left_attack_pawns.size(); i++) {
+                if (left_attack_pawns.test(i)) {
+                    int bit_num = static_cast<int>(i);
+                    std::cout << bit_num;
+                    Square destination = static_cast<Square>(bit_num);
+                    Square origin = static_cast<Square>(bit_num+7);
+                    moveList.push_back(Move {origin, destination});
+                }
+            }
+        }
+        // generate moves from right attack
+        bitboard_t right_attack_pawns = this->attackRight(white_pieces,
+            black_pieces);
+        if (right_attack_pawns.any()) {
+            for (std::size_t i=0; i<right_attack_pawns.size(); i++) {
+                if (right_attack_pawns.test(i)) {
+                    int bit_num = static_cast<int>(i);
+                    Square destination = static_cast<Square>(bit_num);
+                    Square origin = static_cast<Square>(bit_num + 9);
                     moveList.push_back(Move {origin, destination});
                 }
             }

@@ -19,9 +19,9 @@ class WhitePawnSet {
             const bitboard_t & black_pieces);
         bitboard_t pushDouble(const bitboard_t & white_pieces,
             const bitboard_t & black_pieces);
-        void attackLeft(const bitboard_t & white_pieces,
+        bitboard_t attackLeft(const bitboard_t & white_pieces,
             const bitboard_t & black_pieces);
-        void attackRight(const bitboard_t & white_pieces,
+        bitboard_t attackRight(const bitboard_t & white_pieces,
             const bitboard_t & black_pieces);
 };
 
