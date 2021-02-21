@@ -1,9 +1,3 @@
-#include <string>
-#include <bitset>
-#include <ios>
-#include <sstream>
-
-
 #include "utils.h"
 
 
@@ -21,3 +15,13 @@ std::string bitboard_to_string(std::bitset<64> const & bitboard) {
     ss << "\n";
     return ss.str();
 };
+
+// return a bitboard with 1s at given squares
+bitboard_t generateBitboard(std::vector<Square> squares) {
+    bitboard_t board = bitboard_t(std::string("0000000000000000000000000000000000000000000000000000000000000000"));
+
+    for (Square square : squares) {
+        board.set(static_cast<size_t>(square));
+    }
+    return board;
+}

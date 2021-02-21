@@ -26,11 +26,9 @@ int main() {
     //    " Destination: " << Square_array[static_cast<int>(move.destination)] << "\n";
     //}
 
-    Knights WhiteKnights(Color::White);
-    std::cout << bitboard_to_string(WhiteKnights.initialPos);
-
-    Knights BlackKnights(Color::Black);
-    std::cout << bitboard_to_string(BlackKnights.initialPos);
+    std::vector<Square> randSquare = {Square::H1, Square::E4, Square::A8};
+    bitboard_t randBoard = generateBitboard(randSquare);
+    std::cout << bitboard_to_string(randBoard);
 
     return 0;
 }

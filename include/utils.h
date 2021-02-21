@@ -3,6 +3,12 @@
 
 #include <string>
 #include <bitset>
+#include <vector>
+#include <ios>
+#include <sstream>
+
+
+#include <Move.h>
 
 
 // define a bitboard type
@@ -16,6 +22,9 @@ enum class Color {
 
 // return a more realistic representation of bitboard
 std::string bitboard_to_string(const bitboard_t & bitboard);
+
+// return a bitboard with 1s at desired squares
+bitboard_t generateBitboard(std::vector<Square> squares);
 
 
 #endif
