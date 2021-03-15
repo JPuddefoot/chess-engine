@@ -30,6 +30,8 @@ class Knights {
 
 };
 
+extern std::vector<bitboard_t> KnightLookup;
+
 
 #endif
 
