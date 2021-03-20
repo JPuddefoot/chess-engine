@@ -6,7 +6,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(catch)
 
 # Add tests as executable
-add_executable(testlib tests-main.cpp tests-pawns.cpp)
+add_executable(testlib tests-main.cpp tests-pawns.cpp test-knights.cpp)
 
 target_compile_features(testlib PRIVATE cxx_std_17)
 

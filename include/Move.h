@@ -40,4 +40,8 @@ struct Move
     Square destination;
 };
 
+// Method to compare if two moves are the same
+bool operator==(Move const & lhs, Move const & rhs);
+
+
 #endif

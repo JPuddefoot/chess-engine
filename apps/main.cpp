@@ -4,6 +4,7 @@
 #include "WhitePawnSet.h"
 #include "Knight.h"
 #include "utils.h"
+#include <Move.h>
 
 
 int main() {
