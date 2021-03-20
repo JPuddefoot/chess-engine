@@ -15,7 +15,7 @@ bitboard_t WhitePawnSet::pushPawns(const bitboard_t & white_pieces,
     bitboard_t shifted_bitboard = this->currentPos >> 8;
     shifted_bitboard ^= (shifted_bitboard & black_pieces);
     return shifted_bitboard;
-
+    // todo - THIS NEEDS TO STOP WHITE PIECES ALSO!!!!
 };
 // Produce bitboard of double pawn pushes
 bitboard_t WhitePawnSet::pushDouble(const bitboard_t & white_pieces,

@@ -19,15 +19,22 @@ int main() {
     WhitePawns.initBitboard();
 
     std::vector<Move> moveList = {};
-    WhitePawns.generateMoves(white_pieces, black_pieces, moveList);
+    //WhitePawns.generateMoves(white_pieces, black_pieces, moveList);
 
-    //for (Move move : moveList) {
-    //    std::cout << "Origin: " << Square_array[static_cast<int>(move.origin)] <<
-    //    " Destination: " << Square_array[static_cast<int>(move.destination)] << "\n";
-    //}
 
     Knights BlackKnights = Knights(Color::Black);
+    std::cout << bitboard_to_string(BlackKnights.initialPos);
     BlackKnights.generateMoves(white_pieces, black_pieces, moveList);
+
+    Knights WhiteKnights = Knights(Color::White);
+    std::cout << bitboard_to_string(WhiteKnights.initialPos);
+    WhiteKnights.generateMoves(white_pieces, black_pieces, moveList);
+
+
+    for (Move move : moveList) {
+        std::cout << "Origin: " << Square_array[static_cast<int>(move.origin)] <<
+        " Destination: " << Square_array[static_cast<int>(move.destination)] << "\n";
+    }
 
     return 0;
 }
