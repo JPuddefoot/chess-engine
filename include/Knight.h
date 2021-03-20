@@ -5,6 +5,7 @@
 
 #include <utils.h>
 #include <Move.h>
+#include <KnightLookup.h>
 
 //////////
 // KNIGHT
@@ -17,7 +18,6 @@
 
 // Way to add individual knight (for promotions)
 
-
 class Knights {
     public:
         Knights(Color color);
@@ -27,11 +27,8 @@ class Knights {
         void generateMoves(const bitboard_t & white_pieces,
             const bitboard_t & black_pieces, std::vector<Move> & moveList);
     private:
+        static constexpr const std::vector<bitboard_t>* KnightLookup = &KnightLookupTable;
 
 };
 
-extern std::vector<bitboard_t> KnightLookup;
-
-
 #endif
-
