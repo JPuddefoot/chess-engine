@@ -25,14 +25,13 @@ TEST_CASE("Check knights start in correct place for white and black") {
 
 }
 
-TEST_CASE(std::string("Check knights can land on squares with opposing") +
-    "color piece and can't land on square with same color piece") {
+TEST_CASE("Check knights can take opposite and not same color pieces") {
 
     Knights whiteKnights = Knights(Color::White);
     Knights blackKnights = Knights(Color::Black);
 
-    std::vector<Move> moveListBlack = {};
     std::vector<Move> moveListWhite = {};
+    std::vector<Move> moveListBlack = {};
 
     bitboard_t white_pieces = generateBitboard(std::vector<Square>{
         Square::F6, Square::A3});
@@ -80,9 +79,5 @@ TEST_CASE(std::string("Check knights can land on squares with opposing") +
             moveIsIn = true;
     }
     CHECK(moveIsIn == false);
-
-
-
-
 }
 
