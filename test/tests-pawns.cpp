@@ -162,3 +162,63 @@ TEST_CASE("Check unmoved pawns can advance two unless blocked") {
         CHECK(moveIsIn == false);
     }
 }
+
+TEST_CASE("Check pawns can take to the left") {
+    Pawns whitePawns = Pawns(Color::White);
+    Pawns blackPawns = Pawns(Color::Black);
+
+    std::vector<Move> moveListWhite = {};
+    std::vector<Move> moveListBlack = {};
+
+    bitboard_t white_pieces = (whitePawns.currentPos |= generateBitboard(
+        std::vector<Square>{Square::A3, Square::E6}));
+
+    bitboard_t black_pieces = (blackPawns.currentPos |= generateBitboard(
+        std::vector<Square>{Square::G3, Square::C6}));
+
+    whitePawns.generateMoves(white_pieces, black_pieces, moveListWhite);
+    blackPawns.generateMoves(white_pieces, black_pieces, moveListBlack);
+    bool moveIsIn = false;
+
+    std::cout << bitboard_to_string(white_pieces);
+    std::cout << bitboard_to_string(black_pieces);
+
+    SECTION("Check white pawn can take black piece to left") {
+        Move testMoveWhite = Move{Square::H2, Square::G3};
+        for (Move move:moveListWhite) {
+            if (move == testMoveWhite)
+                moveIsIn = true;
+        }
+        CHECK(moveIsIn == true);
+    }
+
+    SECTION("Check white pawn can't take white piece to left") {
+        moveIsIn = false;
+        Move testMoveWhite = Move{Square::B2, Square::A3};
+        for (Move move:moveListWhite) {
+            if (move == testMoveWhite)
+                moveIsIn = true;
+        }
+        CHECK(moveIsIn == false);
+    }
+
+    SECTION("Check black pawn can take white piece to left") {
+        moveIsIn = false;
+        Move testMoveBlack = Move{Square::F7, Square::E6};
+        for (Move move:moveListBlack) {
+            if (move == testMoveBlack)
+                moveIsIn = true;
+        }
+        CHECK(moveIsIn == true);
+    }
+
+    SECTION("Check black pawn can't take black piece to left") {
+        moveIsIn = false;
+        Move testMoveBlack = Move{Square::D7, Square::C6};
+        for (Move move:moveListBlack) {
+            if (move == testMoveBlack)
+                moveIsIn = true;
+        }
+        CHECK(moveIsIn == false);
+    }
+}

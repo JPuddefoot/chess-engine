@@ -22,8 +22,8 @@ class Pawns {
             const bitboard_t & black_pieces, std::vector<Move> & moveList);
         void pushDouble(const bitboard_t & white_pieces,
             const bitboard_t & black_pieces, std::vector<Move> & moveList);
-        bitboard_t attackLeft(const bitboard_t & white_pieces,
-            const bitboard_t & black_pieces);
+        void attackLeft(const bitboard_t & white_pieces,
+            const bitboard_t & black_pieces, std::vector<Move> & moveList);
         bitboard_t attackRight(const bitboard_t & white_pieces,
             const bitboard_t & black_pieces);
 };
