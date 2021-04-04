@@ -24,8 +24,8 @@ class Pawns {
             const bitboard_t & black_pieces, std::vector<Move> & moveList);
         void attackLeft(const bitboard_t & white_pieces,
             const bitboard_t & black_pieces, std::vector<Move> & moveList);
-        bitboard_t attackRight(const bitboard_t & white_pieces,
-            const bitboard_t & black_pieces);
+        void attackRight(const bitboard_t & white_pieces,
+            const bitboard_t & black_pieces, std::vector<Move> & moveList);
 };
 
 #endif

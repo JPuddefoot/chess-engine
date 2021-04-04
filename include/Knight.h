@@ -7,9 +7,9 @@
 #include <Move.h>
 #include <KnightLookup.h>
 
-//////////
-// KNIGHT
-/////////
+////////////
+// KNIGHT //
+////////////
 
 /// Create all knights of the specified colour
 /// Have a lookup table that gives posible moves from each square
@@ -27,7 +27,8 @@ class Knights {
         void generateMoves(const bitboard_t & white_pieces,
             const bitboard_t & black_pieces, std::vector<Move> & moveList);
     private:
-        static constexpr const std::vector<bitboard_t>* KnightLookup = &KnightLookupTable;
+        static constexpr const std::vector<bitboard_t>* KnightLookup =
+            &KnightLookupTable;
 
 };
 

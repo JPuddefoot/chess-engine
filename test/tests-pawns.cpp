@@ -180,8 +180,8 @@ TEST_CASE("Check pawns can take to the left") {
     blackPawns.generateMoves(white_pieces, black_pieces, moveListBlack);
     bool moveIsIn = false;
 
-    std::cout << bitboard_to_string(white_pieces);
-    std::cout << bitboard_to_string(black_pieces);
+    //std::cout << bitboard_to_string(white_pieces);
+   // std::cout << bitboard_to_string(black_pieces);
 
     SECTION("Check white pawn can take black piece to left") {
         Move testMoveWhite = Move{Square::H2, Square::G3};
@@ -215,6 +215,66 @@ TEST_CASE("Check pawns can take to the left") {
     SECTION("Check black pawn can't take black piece to left") {
         moveIsIn = false;
         Move testMoveBlack = Move{Square::D7, Square::C6};
+        for (Move move:moveListBlack) {
+            if (move == testMoveBlack)
+                moveIsIn = true;
+        }
+        CHECK(moveIsIn == false);
+    }
+}
+
+TEST_CASE("Check pawns can take to the right") {
+    Pawns whitePawns = Pawns(Color::White);
+    Pawns blackPawns = Pawns(Color::Black);
+
+    std::vector<Move> moveListWhite = {};
+    std::vector<Move> moveListBlack = {};
+
+    bitboard_t white_pieces = (whitePawns.currentPos |= generateBitboard(
+        std::vector<Square>{Square::C3, Square::E6}));
+
+    bitboard_t black_pieces = (blackPawns.currentPos |= generateBitboard(
+        std::vector<Square>{Square::H3, Square::D6}));
+
+    whitePawns.generateMoves(white_pieces, black_pieces, moveListWhite);
+    blackPawns.generateMoves(white_pieces, black_pieces, moveListBlack);
+    bool moveIsIn = false;
+
+    //std::cout << bitboard_to_string(white_pieces);
+    //std::cout << bitboard_to_string(black_pieces);
+
+    SECTION("Check white pawn can take black piece to right") {
+        Move testMoveWhite = Move{Square::G2, Square::H3};
+        for (Move move:moveListWhite) {
+            if (move == testMoveWhite)
+                moveIsIn = true;
+        }
+        CHECK(moveIsIn == true);
+    }
+
+    SECTION("Check white pawn can't take white piece to right") {
+        moveIsIn = false;
+        Move testMoveWhite = Move{Square::B2, Square::C3};
+        for (Move move:moveListWhite) {
+            if (move == testMoveWhite)
+                moveIsIn = true;
+        }
+        CHECK(moveIsIn == false);
+    }
+
+    SECTION("Check black pawn can take white piece to right") {
+        moveIsIn = false;
+        Move testMoveBlack = Move{Square::D7, Square::E6};
+        for (Move move:moveListBlack) {
+            if (move == testMoveBlack)
+                moveIsIn = true;
+        }
+        CHECK(moveIsIn == true);
+    }
+
+    SECTION("Check black pawn can't take black piece to right") {
+        moveIsIn = false;
+        Move testMoveBlack = Move{Square::C7, Square::D6};
         for (Move move:moveListBlack) {
             if (move == testMoveBlack)
                 moveIsIn = true;

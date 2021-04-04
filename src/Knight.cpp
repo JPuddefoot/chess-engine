@@ -1,8 +1,6 @@
 #include <iostream>
 
 #include <Knight.h>
-#include <KnightLookup.h>
-
 
 Knights::Knights(Color color) {
     this->color = color;
@@ -12,7 +10,7 @@ Knights::Knights(Color color) {
     if (color == Color::Black)
         initialPos = generateBitboard(
             std::vector<Square>{Square::B8, Square::G8});
-    currentPos = this->initialPos;
+    currentPos = initialPos;
 };
 
 
@@ -43,11 +41,9 @@ void Knights::generateMoves(const bitboard_t & white_pieces,
                         moveList.push_back(Move {origin, destination});
                     }
                 }
-
             }
         }
     }
-
 };
 
 // todo - add way to add new knights (in case promotion)

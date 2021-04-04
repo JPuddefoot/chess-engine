@@ -117,20 +117,42 @@ void Pawns::attackLeft(const bitboard_t & white_pieces,
             moveList.push_back(move);
         }
     }
-
 }
 
-bitboard_t Pawns::attackRight(const bitboard_t & white_pieces,
-    const bitboard_t & black_pieces) {
+void Pawns::attackRight(const bitboard_t & white_pieces,
+    const bitboard_t & black_pieces, std::vector<Move> & moveList) {
 
-        bitboard_t rightFileMask = bitboard_t(std::string("0000000100000001000000010000000100000001000000010000000100000001"));
-        // mask H-file pawns (can't attack right)
-        bitboard_t shifted_bitboard = this->currentPos;
-        shifted_bitboard ^= (shifted_bitboard & rightFileMask);
+    bitboard_t rightFileMask = generateBitboard(std::vector<Square>{Square::H8,
+        Square::H7, Square::H6, Square::H5, Square::H4, Square::H3, Square::H2,
+        Square::H1});
+
+    bitboard_t shifted_bitboard;
+
+    shifted_bitboard = currentPos ^ (currentPos & rightFileMask);
+    if (color == Color::White) {
         shifted_bitboard >>= 9;
         shifted_bitboard &= black_pieces;
-        return shifted_bitboard;
     }
+    if (color == Color::Black) {
+        shifted_bitboard <<= 7; // allows using same fileMask for both colors
+        shifted_bitboard &= white_pieces;
+    }
+    // Generate moveList for all attacks to right
+    for (std::size_t bit = 0; bit<shifted_bitboard.size(); bit++) {
+        // Get origin and destination for each valid move
+        if (shifted_bitboard.test(bit)) {
+            Move move;
+            move.destination = static_cast<Square>(bit);
+            if (color == Color::White)
+                // Already checked that this is a valid move
+                move.origin = static_cast<Square>(bit+9);
+            if (color == Color::Black)
+                move.origin = static_cast<Square>(bit-7);
+            moveList.push_back(move);
+        }
+    }
+}
+
 
 void Pawns::generateMoves(const bitboard_t & white_pieces,
     const bitboard_t & black_pieces, std::vector<Move> & moveList) {
@@ -140,5 +162,6 @@ void Pawns::generateMoves(const bitboard_t & white_pieces,
             pushSingle(white_pieces, black_pieces, moveList);
             pushDouble(white_pieces, black_pieces, moveList);
             attackLeft(white_pieces, black_pieces, moveList);
+            attackRight(white_pieces, black_pieces, moveList);
         }
     }
