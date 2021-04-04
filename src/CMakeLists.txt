@@ -4,7 +4,8 @@ file(GLOB HEADER_LIST CONFIGURE_DEPENDS "${ModernCMakeExample_SOURCE_DIR}/includ
 
 # make automatic library
 
-add_library(chess_library Pawns.cpp Knight.cpp utils.cpp Move.cpp ${HEADER_LIST})
+add_library(chess_library Pawns.cpp Knight.cpp King.cpp utils.cpp
+    Move.cpp ${HEADER_LIST})
 
 # Need directory and users need too
 target_include_directories(chess_library PUBLIC ../include)
