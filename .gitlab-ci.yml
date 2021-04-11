@@ -15,6 +15,5 @@ build-job:
 test-job1:
   stage: test
   script:
-    - cd build
     - ctest --verbose
 
