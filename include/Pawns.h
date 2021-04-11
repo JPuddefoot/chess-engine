@@ -8,12 +8,11 @@
 #include <utils.h>
 #include <Move.h>
 
-class Pawns {
+#include <Piece.h>
+
+class Pawns: public Piece {
     public:
         Pawns(Color color);
-        Color color;
-        bitboard_t initialPos;
-        bitboard_t currentPos;
         void generateMoves(const bitboard_t & white_pieces,
             const bitboard_t & black_pieces, std::vector<Move> & moveList);
 

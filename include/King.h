@@ -7,6 +7,8 @@
 #include <Move.h>
 #include <KingLookup.h>
 
+#include <Piece.h>
+
 //////////
 // King //
 //////////
@@ -16,12 +18,9 @@
 
 // Need way to test for checks, castling etc
 
-class King {
+class King: public Piece {
     public:
         King(Color color);
-        Color color;
-        bitboard_t initialPos;
-        bitboard_t currentPos;
         void generateMoves(const bitboard_t & white_pieces,
             const bitboard_t & black_pieces, std::vector<Move> & moveList);
 

@@ -20,6 +20,18 @@ enum class Color {
     White,
 };
 
+// define an enum for each piece
+enum class PieceType {
+    none,
+    wPawn,
+    bPawn,
+    Knight,
+    Bishop,
+    Rook,
+    Queen,
+    King
+};
+
 // return a more realistic representation of bitboard
 std::string bitboard_to_string(const bitboard_t & bitboard);
 

@@ -7,6 +7,8 @@
 #include <Move.h>
 #include <KnightLookup.h>
 
+#include <Piece.h>
+
 ////////////
 // KNIGHT //
 ////////////
@@ -18,12 +20,9 @@
 
 // Way to add individual knight (for promotions)
 
-class Knights {
+class Knights: public Piece {
     public:
         Knights(Color color);
-        Color color;
-        bitboard_t initialPos;
-        bitboard_t currentPos;
         void generateMoves(const bitboard_t & white_pieces,
             const bitboard_t & black_pieces, std::vector<Move> & moveList);
     private:
