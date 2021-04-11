@@ -19,7 +19,7 @@ endif()
 
 include(FetchContent)
 if(${CMAKE_VERSION} VERSION_LESS 3.14)
-  include(cmake/add_FetchContent_MakeAvailable.cmake)
+  include(cmake/add_fetchContent.cmake)
 endif()
 
 
