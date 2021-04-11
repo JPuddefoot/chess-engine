@@ -10,10 +10,7 @@ build-job:
     - cd build
     - cmake ..
     - make
-
-
-test-job1:
-  stage: test
-  script:
     - ctest --verbose
+
+
 
