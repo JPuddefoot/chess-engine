@@ -3,6 +3,7 @@
 
 
 #include <vector>
+#include <string>
 
 #include <utils.h>
 #include <Move.h>
@@ -17,6 +18,8 @@ class Piece {
         Color color;
         bitboard_t initialPos;
         bitboard_t currentPos;
+
+        std::string name;
 
         virtual void generateMoves(const bitboard_t & white_pieces,
             const bitboard_t & black_pieces, std::vector<Move> & moveList) = 0;

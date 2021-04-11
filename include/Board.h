@@ -3,10 +3,12 @@
 
 #include <vector>
 #include <array>
+#include <string>
 
 #include <utils.h>
 #include <Move.h>
 
+#include <Piece.h>
 #include <King.h>
 #include <Pawns.h>
 #include <Knight.h>
@@ -24,13 +26,17 @@
 
 class Board {
     public:
+        Board();
         Color sideToMove;
 
         Move makeMove(Square origin, Square destination);
         void undoMove(Move move);
 
+        std::string printBoard();
+
     private:
-        std::vector<PieceType> board_array = std::vector<PieceType>(64, PieceType::none);
+        std::vector<PieceType> boardArray =
+            std::vector<PieceType>(64, PieceType::None);
 
         King whiteKing = King(Color::White);
         Pawns whitePawns = Pawns(Color::White);
@@ -39,6 +45,8 @@ class Board {
         King blackKing = King(Color::Black);
         Pawns blackPawns = Pawns(Color::Black);
         Knights blackKnights = Knights(Color::Black);
+
+
 };
 
 #endif

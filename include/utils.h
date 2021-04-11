@@ -22,14 +22,19 @@ enum class Color {
 
 // define an enum for each piece
 enum class PieceType {
-    none,
+    None,
     wPawn,
     bPawn,
-    Knight,
-    Bishop,
-    Rook,
-    Queen,
-    King
+    wKnight,
+    bKnight,
+    bBishop,
+    wBishop,
+    wRook,
+    bRook,
+    wQueen,
+    bQueen,
+    wKing,
+    bKing
 };
 
 // return a more realistic representation of bitboard
