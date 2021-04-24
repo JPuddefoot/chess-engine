@@ -35,8 +35,8 @@ class Board {
         std::string printBoard();
 
     private:
-        std::vector<PieceType> boardArray =
-            std::vector<PieceType>(64, PieceType::None);
+        std::vector<Piece*> boardArray =
+            std::vector<Piece*>(64, nullptr);
 
         King whiteKing = King(Color::White);
         Pawns whitePawns = Pawns(Color::White);

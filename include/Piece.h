@@ -18,7 +18,6 @@ class Piece {
         Color color;
         bitboard_t initialPos;
         bitboard_t currentPos;
-
         std::string name;
 
         virtual void generateMoves(const bitboard_t & white_pieces,
@@ -30,6 +29,7 @@ class Piece {
 
         void addPiece(const Square & destination);
 
+        virtual std::string const & getName() {return name ;}
 
 };
 

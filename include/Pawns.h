@@ -17,6 +17,8 @@ class Pawns: public Piece {
         void generateMoves(const bitboard_t & white_pieces,
             const bitboard_t & black_pieces, std::vector<Move> & moveList);
 
+        virtual std::string const & getName() {return name;}
+
     private:
         void pushSingle(const bitboard_t & white_pieces,
             const bitboard_t & black_pieces, std::vector<Move> & moveList);
@@ -26,6 +28,7 @@ class Pawns: public Piece {
             const bitboard_t & black_pieces, std::vector<Move> & moveList);
         void attackRight(const bitboard_t & white_pieces,
             const bitboard_t & black_pieces, std::vector<Move> & moveList);
+
 };
 
 #endif
