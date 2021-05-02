@@ -4,7 +4,10 @@
 // Initialise board:
 //
 //    - fill board_array with normal starting positions
+//    - Create initial positions in white/black pieces bitboard
 Board::Board() {
+
+    whiteToMove = true;
 
     // White Pieces
     boardArray[static_cast<int>(Square::E1)] = &whiteKing;
@@ -18,6 +21,9 @@ Board::Board() {
     boardArray[static_cast<int>(Square::F2)] = &whitePawns;
     boardArray[static_cast<int>(Square::G2)] = &whitePawns;
     boardArray[static_cast<int>(Square::H2)] = &whitePawns;
+    white_pieces = generateBitboard(std::vector<Square>{
+      Square::E1, Square::B1, Square::G1, Square::A2, Square::B2, Square::C2,
+      Square::D2, Square::E2, Square::F2, Square::G2, Square::H2});
 
     // Black Pieces
     boardArray[static_cast<int>(Square::E8)] = &blackKing;
@@ -31,15 +37,82 @@ Board::Board() {
     boardArray[static_cast<int>(Square::F7)] = &blackPawns;
     boardArray[static_cast<int>(Square::G7)] = &blackPawns;
     boardArray[static_cast<int>(Square::H7)] = &blackPawns;
+    black_pieces = generateBitboard(std::vector<Square>{
+      Square::E8, Square::B8, Square::G8, Square::A7, Square::B7, Square::C7,
+      Square::D7, Square::E7, Square::F7, Square::G7, Square::H7});
 
 
 }
 
+void Board::generateMoves() {
+
+    // Reset moveList
+    moveList.clear();
+
+    // Only generate moves for whose turn it is
+    std::cout << "WhiteTOMove: " << whiteToMove << "\n";
+    switch (whiteToMove) {
+        case true:
+            whiteKing.generateMoves(white_pieces, black_pieces, moveList);
+            whitePawns.generateMoves(white_pieces, black_pieces, moveList);
+            whiteKnights.generateMoves(white_pieces, black_pieces, moveList);
+            break;
+
+        case false:
+            blackKing.generateMoves(white_pieces, black_pieces, moveList);
+            blackPawns.generateMoves(white_pieces, black_pieces, moveList);
+            blackKnights.generateMoves(white_pieces, black_pieces, moveList);
+            break;
+    }
+}
+
 Move Board::makeMove(Square origin, Square destination) {
+
+    std::size_t bit_origin = static_cast<std::size_t>(origin);
+    std::size_t bit_destination = static_cast<std::size_t>(destination);
+
+    // Find the piece to be moved on boardArray and relevant bitboard
     Piece* piece_to_move = boardArray[static_cast<int>(origin)];
+    bitboard_t * board_to_move = (whiteToMove) ? &white_pieces : &black_pieces;
+    std::cout << bitboard_to_string(*board_to_move);
+
+    // Check a piece exists for both - if not then throw error
+
+    bool validMove = (piece_to_move && board_to_move->test(bit_origin));
+    if (!validMove) {
+        throw std::runtime_error("No piece of color at origin square: " +
+            Square_array[bit_origin] + "\n");
+    }
+
+
+    // Make the piece move
     piece_to_move->makeMove(origin, destination);
+    // Update the current bitboard for origin/destination
+    board_to_move->flip(bit_origin);
+    board_to_move->flip(bit_destination);
+
+    // Have temp pointer to current piece if any on destination
+    Piece * piece_at_dest = boardArray[static_cast<int>(destination)];
+
+    // Update the boardArray with the new position - overwrites old piece
     boardArray[static_cast<int>(destination)] = piece_to_move;
     boardArray[static_cast<int>(origin)] = nullptr;
+
+    // If piece was destination, tell it it has been captured
+
+    if (piece_at_dest) {
+        piece_at_dest->capturePiece(destination);
+    }
+
+    // If piece of other type was captured, update other board
+    bitboard_t * captured_board = (!whiteToMove) ? &white_pieces : &black_pieces;
+    if (captured_board->test(bit_destination)) {
+        captured_board->flip(bit_destination);
+    }
+
+
+    // Change who's move it is
+    whiteToMove = !whiteToMove;
     return Move{origin, destination};
 }
 

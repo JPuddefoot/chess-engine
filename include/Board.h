@@ -27,14 +27,15 @@
 class Board {
     public:
         Board();
-        Color sideToMove;
+        bool whiteToMove;
 
         Move makeMove(Square origin, Square destination);
         void undoMove(Move move);
+        void generateMoves();
+
 
         std::string printBoard();
 
-    private:
         std::vector<Piece*> boardArray =
             std::vector<Piece*>(64, nullptr);
 
@@ -45,6 +46,10 @@ class Board {
         King blackKing = King(Color::Black);
         Pawns blackPawns = Pawns(Color::Black);
         Knights blackKnights = Knights(Color::Black);
+
+        std::vector<Move> moveList;
+        bitboard_t white_pieces;
+        bitboard_t black_pieces;
 
 
 };
