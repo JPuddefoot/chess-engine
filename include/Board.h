@@ -48,8 +48,8 @@ class Board {
         Knights blackKnights = Knights(Color::Black);
 
         std::vector<Move> moveList;
-        bitboard_t white_pieces;
-        bitboard_t black_pieces;
+        bitboard_t whitePieces;
+        bitboard_t blackPieces;
 
 
 };
