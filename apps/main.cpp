@@ -3,6 +3,8 @@
 
 #include <Board.h>
 
+#include <RookLookup.h>
+
 
 int main() {
 
@@ -26,6 +28,9 @@ int main() {
         << "destination: " << Square_array[static_cast<std::size_t>(move.destination)]
         << "\n";
     }
+
+    generateRookBlockerMask(Square::E1);
+    generateRookBlockerMask(Square::E5);
 
 
 
