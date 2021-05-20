@@ -12,10 +12,15 @@
 //      if two different blocker boards have same index, try a new number
 //      Finally, store move board at that index
 
+#include <cmath>
+
 #include <utils.h>
 #include <Move.h>
 
 // Generate the blocker mask for a given square
 bitboard_t generateRookBlockerMask(Square origin);
+
+// Generate all combinations of blocker boards for a given blocker mask
+std::vector<bitboard_t> generateBlockerBoards(bitboard_t blockerMask);
 
 // For a given blocker board, generate all possible blocker boards

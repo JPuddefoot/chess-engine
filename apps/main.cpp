@@ -32,6 +32,8 @@ int main() {
     generateRookBlockerMask(Square::E1);
     generateRookBlockerMask(Square::E5);
 
+    generateBlockerBoards(generateRookBlockerMask(Square::A5));
+
 
 
     return 0;
