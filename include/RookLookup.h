@@ -13,14 +13,22 @@
 //      Finally, store move board at that index
 
 #include <cmath>
+#include <random>
+#include <unordered_map>
 
 #include <utils.h>
 #include <Move.h>
 
+// Generate the mapping and magic number for a given square
+bitboard_t generateRookMoveSetforSquare(Square const & origin);
+
 // Generate the blocker mask for a given square
-bitboard_t generateRookBlockerMask(Square origin);
+bitboard_t generateRookBlockerMask(Square const & origin);
 
 // Generate all combinations of blocker boards for a given blocker mask
-std::vector<bitboard_t> generateBlockerBoards(bitboard_t blockerMask);
+std::vector<bitboard_t> generateBlockerBoards(bitboard_t const & blockerMask);
+
+// For a given blocker board, generate the move board
+bitboard_t generateRookMoveBoard(bitboard_t const & blockerBoard,  Square const & origin);
 
 // For a given blocker board, generate all possible blocker boards
