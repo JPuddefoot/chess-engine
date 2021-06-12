@@ -9,14 +9,11 @@
 // different random number.
 // Returns the magic number and changes a map of movesets for that particular
 // square (which is given as an argument)
-bitboard_t generateRookMoveSetforSquare(Square const & origin) {
-
-    // Number of bits to use in hashing - lower is better for memory,
-    // but slower to find magic numbers
-    int num_bits = 7;
+long long int generateRookMoveSetforSquare(Square const & origin) {
 
     // map of movesets, indexed by hash
-    std::unordered_map<bitboard_t, bitboard_t>moveSet;
+    std::unordered_map<long long int, uint64_t>moveSet;
+    //std::unordered_map<long long int, long long int>::iterator it;
 
     // Create a random number to be turned into bitset
     std::random_device rd; // used to obtain seed for rng
@@ -28,12 +25,63 @@ bitboard_t generateRookMoveSetforSquare(Square const & origin) {
 
 
     // generate full list of blocking boards
+    bitboard_t blockerMask = generateRookBlockerMask(origin);
     std::vector<bitboard_t> blockerBoards = generateBlockerBoards(
-        generateRookBlockerMask(origin));
+        blockerMask);
 
-    bool notFound {true};
+    int num_bits = blockerMask.count()+1;
 
-    return moveSet[0];
+    // Try a certain amount of magic numbers before quitting
+    for (int i=0; i<1000000; i++) {
+
+        moveSet.clear(); // clear map before each attempt
+
+        bool validNum = true;
+
+        // Generate the random magic number candidate
+        magicNum = distrib(gen);
+
+
+       // std::cout << "magicNum: " << magicNum << "\n";
+
+        // Go through blockerBoards
+        for (bitboard_t blockerBoard : blockerBoards) {
+            // Create the moveBoard
+            bitboard_t moveBoard = generateRookMoveBoard(blockerBoard, origin);
+            // Generate the hash
+            uint64_t blockerBoardInt = blockerBoard.to_ullong();
+            uint64_t moveBoardInt = moveBoard.to_ullong();
+            uint64_t hash = blockerBoardInt * magicNum >> (64-num_bits);
+            //std::cout << "HASH: " << hash << "\n";
+
+            // Try placing moveboard at hash in map - if collision check if
+            // current entry is same or not
+
+            if (moveSet.count(hash) == 0) {
+                moveSet[hash] = moveBoardInt;
+                continue;
+            }
+            else {
+                // Need to try a new magic number
+               // std::cout << "Muggle Number, trying new magic number \n";
+                validNum = false;
+               // std::cout << "MoveBoard: " << bitboard_to_string(moveBoardInt) << "\n";
+               // std::cout << "Collided : " << bitboard_to_string(moveSet.at(hash)) << "\n";
+               // std::cout << "Blocker board: " << blockerBoardInt << "\n";
+                break;
+            }
+        }
+        // If code gets to here and valid num is true, can return moveSet
+        // Else try a new magic number
+        if (validNum) {
+            std::cout << "Found Number:: " << magicNum;
+            return magicNum;
+        }
+    }
+
+
+
+    return -1;
 
 }
 // For a given square, add a 1 to bitboard vertically/horizontally until
@@ -63,8 +111,8 @@ bitboard_t generateRookBlockerMask(Square const & origin) {
         blockerMask.set(col+i*8);
     }
 
-    // finally, flip the origin square bit back to 0
-    blockerMask.flip(int_origin);
+    // finally, set the origin square bit to 0
+    blockerMask.reset(int_origin);
 
     return blockerMask;
 }

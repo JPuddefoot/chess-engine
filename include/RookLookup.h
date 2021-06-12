@@ -20,7 +20,7 @@
 #include <Move.h>
 
 // Generate the mapping and magic number for a given square
-bitboard_t generateRookMoveSetforSquare(Square const & origin);
+long long int generateRookMoveSetforSquare(Square const & origin);
 
 // Generate the blocker mask for a given square
 bitboard_t generateRookBlockerMask(Square const & origin);

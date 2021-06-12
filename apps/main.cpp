@@ -33,7 +33,7 @@ int main() {
   //  generateBlockerBoards(generateRookBlockerMask(Square::A1));
 
  // generateRookMoveSetforSquare(Square::A1);
-  generateRookMoveSetforSquare(Square::D4);
+  generateRookMoveSetforSquare(Square::A1);
 
 
 
