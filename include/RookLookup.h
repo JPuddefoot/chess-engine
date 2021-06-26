@@ -1,3 +1,6 @@
+#ifndef RookLookup_H
+#define RookLookup_H
+
 // Generates the attack set for a horizontally/vertically moving piece
 // using magic bitboard:
 
@@ -19,16 +22,31 @@
 #include <utils.h>
 #include <Move.h>
 
-// Generate the mapping and magic number for a given square
-long long int generateRookMoveSetforSquare(Square const & origin);
+class RookLookup {
+    public:
 
-// Generate the blocker mask for a given square
-bitboard_t generateRookBlockerMask(Square const & origin);
+        // Lookup table of Rook moves - Each square has a map of a hash and a moveboard
+        static std::vector<std::unordered_map<uint64_t, uint64_t>>moveSets;
 
-// Generate all combinations of blocker boards for a given blocker mask
-std::vector<bitboard_t> generateBlockerBoards(bitboard_t const & blockerMask);
+        // Lookup table of Rook Magic Numbers
+        static const std::vector<uint64_t>rookMagicNumbers;
 
-// For a given blocker board, generate the move board
-bitboard_t generateRookMoveBoard(bitboard_t const & blockerBoard,  Square const & origin);
+        // Generate the mapping and magic number for a given square
+        static uint64_t generateRookMoveSetforSquare(Square const & origin);
 
-// For a given blocker board, generate all possible blocker boards
+        // Generate the blocker mask for a given square
+        static bitboard_t generateRookBlockerMask(Square const & origin);
+
+        // Generate all combinations of blocker boards for a given blocker mask
+        static std::vector<bitboard_t> generateBlockerBoards(
+            bitboard_t const & blockerMask);
+
+        // For a given blocker board, generate the move board
+        static bitboard_t generateRookMoveBoard(bitboard_t const & blockerBoard,
+            Square const & origin);
+
+
+};
+
+
+#endif

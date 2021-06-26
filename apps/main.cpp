@@ -6,6 +6,7 @@
 #include <RookLookup.h>
 
 
+
 int main() {
 
     Board board = Board();
@@ -32,8 +33,15 @@ int main() {
   //  generateRookBlockerMask(Square::E1);
   //  generateBlockerBoards(generateRookBlockerMask(Square::A1));
 
- // generateRookMoveSetforSquare(Square::A1);
-  generateRookMoveSetforSquare(Square::A1);
+
+
+  RookLookup::generateRookMoveSetforSquare(Square::D4);
+  //generateRookMoveSetforSquare(Square::A1);
+
+   // for (auto const & magicNum : RookLookup::rookMagicNumbers) {
+   //     std::cout << magicNum << "\n";
+   // }
+
 
 
 

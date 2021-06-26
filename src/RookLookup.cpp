@@ -9,19 +9,23 @@
 // different random number.
 // Returns the magic number and changes a map of movesets for that particular
 // square (which is given as an argument)
-long long int generateRookMoveSetforSquare(Square const & origin) {
+
+
+
+
+uint64_t RookLookup::generateRookMoveSetforSquare(Square const & origin) {
 
     // map of movesets, indexed by hash
-    std::unordered_map<long long int, uint64_t>moveSet;
+    std::unordered_map<int, uint64_t>moveSet;
     //std::unordered_map<long long int, long long int>::iterator it;
 
     // Create a random number to be turned into bitset
     std::random_device rd; // used to obtain seed for rng
     std::mt19937_64 gen(rd()); // mersenne_tweister engine seeded with rd()
-    std::uniform_int_distribution<long long int> distrib(0,std::llround(
+    std::uniform_int_distribution<uint64_t> distrib(0,std::llround(
         std::pow(2,64)));
 
-    long long int magicNum = 0;
+    uint64_t magicNum = 0;
 
 
     // generate full list of blocking boards
@@ -29,10 +33,10 @@ long long int generateRookMoveSetforSquare(Square const & origin) {
     std::vector<bitboard_t> blockerBoards = generateBlockerBoards(
         blockerMask);
 
-    int num_bits = blockerMask.count()+1;
+    int num_bits = blockerMask.count();
 
     // Try a certain amount of magic numbers before quitting
-    for (int i=0; i<1000000; i++) {
+    for (int i=0; i<100000; i++) {
 
         moveSet.clear(); // clear map before each attempt
 
@@ -40,9 +44,10 @@ long long int generateRookMoveSetforSquare(Square const & origin) {
 
         // Generate the random magic number candidate
         magicNum = distrib(gen);
+        std::cout << magicNum << "\n";
 
 
-       // std::cout << "magicNum: " << magicNum << "\n";
+        //std::cout << "magicNum: " << magicNum << "\n";
 
         // Go through blockerBoards
         for (bitboard_t blockerBoard : blockerBoards) {
@@ -50,9 +55,13 @@ long long int generateRookMoveSetforSquare(Square const & origin) {
             bitboard_t moveBoard = generateRookMoveBoard(blockerBoard, origin);
             // Generate the hash
             uint64_t blockerBoardInt = blockerBoard.to_ullong();
+          //  std::cout << "Blockers" << bitboard_to_string(blockerBoard);
             uint64_t moveBoardInt = moveBoard.to_ullong();
-            uint64_t hash = blockerBoardInt * magicNum >> (64-num_bits);
-            //std::cout << "HASH: " << hash << "\n";
+          //  std::cout << "PreHash" << bitboard_to_string(blockerBoardInt*magicNum);
+            int hash = (blockerBoardInt * magicNum) >> (64-num_bits);
+          //  std::cout << "HASH: " << hash << bitboard_to_string(hash) << "\n";
+          //  std::bitset<12> x(hash);
+          //  std::cout << x << "\n";
 
             // Try placing moveboard at hash in map - if collision check if
             // current entry is same or not
@@ -61,32 +70,42 @@ long long int generateRookMoveSetforSquare(Square const & origin) {
                 moveSet[hash] = moveBoardInt;
                 continue;
             }
+            // if the move boards are the same can allow the collision
+            else if (moveSet[hash] == moveBoardInt) {
+            //    std::cout << "FINE COLLISION: " << "\n";
+            //    std::cout << "Hash: " << hash << "\n";
+            //    std::cout << "Current Moveboard: " << moveBoardInt << "\n";
+            //    std::cout << "Moveboard at hash: " << moveSet[hash] << "\n";
+                continue;
+            }
             else {
                 // Need to try a new magic number
-               // std::cout << "Muggle Number, trying new magic number \n";
+
                 validNum = false;
-               // std::cout << "MoveBoard: " << bitboard_to_string(moveBoardInt) << "\n";
-               // std::cout << "Collided : " << bitboard_to_string(moveSet.at(hash)) << "\n";
-               // std::cout << "Blocker board: " << blockerBoardInt << "\n";
+              //  std::cout << "Bad NUM" << "\n";
+              //  std::cout << "Hash: " << hash << "\n";
+              //  std::cout << "Current Moveboard: " << moveBoardInt << "\n";
+              //  std::cout << "Moveboard at hash: " << moveSet[hash] << "\n";
                 break;
             }
         }
         // If code gets to here and valid num is true, can return moveSet
         // Else try a new magic number
         if (validNum) {
-            std::cout << "Found Number:: " << magicNum;
+            //std::cout << "Found Number:: " << magicNum;
+            // Add map to vector of maps
             return magicNum;
         }
     }
 
 
-
+    throw std::invalid_argument("Couldn't find legitimate magic number!");
     return -1;
 
 }
 // For a given square, add a 1 to bitboard vertically/horizontally until
 // reach the edge
-bitboard_t generateRookBlockerMask(Square const & origin) {
+bitboard_t RookLookup::generateRookBlockerMask(Square const & origin) {
 
     bitboard_t blockerMask = generateBitboard(std::vector<Square>{});
 
@@ -117,7 +136,8 @@ bitboard_t generateRookBlockerMask(Square const & origin) {
     return blockerMask;
 }
 
-std::vector<bitboard_t> generateBlockerBoards(bitboard_t const & blockerMask) {
+std::vector<bitboard_t> RookLookup::generateBlockerBoards(
+    bitboard_t const & blockerMask) {
     // To generate all possible blockerboards, need to get all possible
     // combinations of 1s and 0s from relevant squares. To do this,
     // can create bitsets for each number from 0 to 2^no.bits, and
@@ -157,7 +177,7 @@ std::vector<bitboard_t> generateBlockerBoards(bitboard_t const & blockerMask) {
 
 // Generate the attack set for a rook given a blocker mask
 // Note this will allow attacks on same color pieces - need to remove later
-bitboard_t generateRookMoveBoard(bitboard_t const & blockerBoard,
+bitboard_t RookLookup::generateRookMoveBoard(bitboard_t const & blockerBoard,
     Square const & origin) {
 
     bitboard_t moveSet = generateBitboard(std::vector<Square>{});
@@ -225,4 +245,147 @@ bitboard_t generateRookMoveBoard(bitboard_t const & blockerBoard,
     return moveSet;
 }
 
+/*
+// Initialise RookLookup moveSets and magic numbers - static members have to
+// be declared like this
+std::vector<std::unordered_map<uint64_t, uint64_t>> RookLookup::moveSets = {};
+
+const std::vector<uint64_t> RookLookup::rookMagicNumbers = {
+    // H8
+    generateRookMoveSetforSquare(Square::H8, moveSets),
+    // G8
+    generateRookMoveSetforSquare(Square::G8, moveSets),
+    // F8
+    generateRookMoveSetforSquare(Square::F8, moveSets),
+    // E8
+    generateRookMoveSetforSquare(Square::E8, moveSets),
+    // D8
+    generateRookMoveSetforSquare(Square::D8, moveSets),
+    // C8
+    generateRookMoveSetforSquare(Square::C8, moveSets),
+    // B8
+    generateRookMoveSetforSquare(Square::B8, moveSets),
+    // A8
+    generateRookMoveSetforSquare(Square::A8, moveSets),
+
+    // H7
+    generateRookMoveSetforSquare(Square::H7, moveSets),
+    // G7
+    generateRookMoveSetforSquare(Square::G7, moveSets),
+    // F7
+    generateRookMoveSetforSquare(Square::F7, moveSets),
+    // E7
+    generateRookMoveSetforSquare(Square::E7, moveSets),
+    // D7
+    generateRookMoveSetforSquare(Square::D7, moveSets),
+    // C7
+    generateRookMoveSetforSquare(Square::C7, moveSets),
+    // B7
+    generateRookMoveSetforSquare(Square::B7, moveSets),
+    // A7
+    generateRookMoveSetforSquare(Square::A7, moveSets),
+
+    // H6
+    generateRookMoveSetforSquare(Square::H6, moveSets),
+    // G6
+    generateRookMoveSetforSquare(Square::G6, moveSets),
+    // F6
+    generateRookMoveSetforSquare(Square::F6, moveSets),
+    // E6
+    generateRookMoveSetforSquare(Square::E6, moveSets),
+    // D6
+    generateRookMoveSetforSquare(Square::D6, moveSets),
+    // C6
+    generateRookMoveSetforSquare(Square::C6, moveSets),
+    // B6
+    generateRookMoveSetforSquare(Square::B6, moveSets),
+    // A6
+    generateRookMoveSetforSquare(Square::A6, moveSets),
+
+    // H5
+    generateRookMoveSetforSquare(Square::H5, moveSets),
+    // G5
+    generateRookMoveSetforSquare(Square::G5, moveSets),
+    // F5
+    generateRookMoveSetforSquare(Square::F5, moveSets),
+    // E5
+    generateRookMoveSetforSquare(Square::E5, moveSets),
+    // D5
+    generateRookMoveSetforSquare(Square::D5, moveSets),
+    // C5
+    generateRookMoveSetforSquare(Square::C5, moveSets),
+    // B5
+    generateRookMoveSetforSquare(Square::B5, moveSets),
+    // A5
+    generateRookMoveSetforSquare(Square::A5, moveSets),
+
+    // H4
+    generateRookMoveSetforSquare(Square::H4, moveSets),
+    // G4
+    generateRookMoveSetforSquare(Square::G4, moveSets),
+    // F4
+    generateRookMoveSetforSquare(Square::F4, moveSets),
+    // E4
+    generateRookMoveSetforSquare(Square::E4, moveSets),
+    // D4
+    generateRookMoveSetforSquare(Square::D4, moveSets),
+    // C4
+    generateRookMoveSetforSquare(Square::C4, moveSets),
+    // B4
+    generateRookMoveSetforSquare(Square::B4, moveSets),
+    // A4
+    generateRookMoveSetforSquare(Square::A4, moveSets),
+
+    // H3
+    generateRookMoveSetforSquare(Square::H3, moveSets),
+    // G3
+    generateRookMoveSetforSquare(Square::G3, moveSets),
+    // F3
+    generateRookMoveSetforSquare(Square::F3, moveSets),
+    // E3
+    generateRookMoveSetforSquare(Square::E3, moveSets),
+    // D3
+    generateRookMoveSetforSquare(Square::D3, moveSets),
+    // C3
+    generateRookMoveSetforSquare(Square::C3, moveSets),
+    // B3
+    generateRookMoveSetforSquare(Square::B3, moveSets),
+    // A3
+    generateRookMoveSetforSquare(Square::A3, moveSets),
+
+    // H2
+    generateRookMoveSetforSquare(Square::H2, moveSets),
+    // G2
+    generateRookMoveSetforSquare(Square::G2, moveSets),
+    // F2
+    generateRookMoveSetforSquare(Square::F2, moveSets),
+    // E2
+    generateRookMoveSetforSquare(Square::E2, moveSets),
+    // D2
+    generateRookMoveSetforSquare(Square::D2, moveSets),
+    // C2
+    generateRookMoveSetforSquare(Square::C2, moveSets),
+    // B2
+    generateRookMoveSetforSquare(Square::B2, moveSets),
+    // A2
+    generateRookMoveSetforSquare(Square::A2, moveSets),
+
+    // H1
+    generateRookMoveSetforSquare(Square::H1, moveSets),
+    // G1
+    generateRookMoveSetforSquare(Square::G1, moveSets),
+    // F1
+    generateRookMoveSetforSquare(Square::F1, moveSets),
+    // E1
+    generateRookMoveSetforSquare(Square::E1, moveSets),
+    // D1
+    generateRookMoveSetforSquare(Square::D1, moveSets),
+    // C1
+    generateRookMoveSetforSquare(Square::C1, moveSets),
+    // B1
+    generateRookMoveSetforSquare(Square::B1, moveSets),
+    // A1
+    generateRookMoveSetforSquare(Square::A1, moveSets),
+};
+*/
 
