@@ -10,6 +10,11 @@
 
 class BishopLookup {
     public:
+
+        static const uint64_t bishopMagicNumbers[64];
+
+        static std::unordered_map<Square, std::array<uint64_t,4096>>attackTable;
+
         static uint64_t bishopMask(Square origin);
         static uint64_t bishopAttack(Square origin, uint64_t blocker);
         static uint64_t findMagic(Square origin);

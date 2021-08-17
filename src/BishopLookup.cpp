@@ -9,7 +9,8 @@ uint64_t BishopLookup::findMagic(Square origin) {
     // attempts to place. If colliding hashes for different attackSets, try a
     // different magic number.
 
-    uint64_t blockers[4096], attackSets[4096], hashTable[4096];
+    uint64_t blockers[4096], attackSets[4096];
+    std::array<uint64_t, 4096> hashTable;
     int m_bits = BishopBits[static_cast<int>(origin)];
     int fail;
 
@@ -44,12 +45,16 @@ uint64_t BishopLookup::findMagic(Square origin) {
         }
         // Trial number passed - is working magic number!!
         if (!fail) {
+            attackTable[origin] = hashTable;
             return magic;
         }
     }
 
     return 0ULL;
 }
+
+std::unordered_map<Square, std::array<uint64_t,4096>> BishopLookup::attackTable = {};
+
 
 int BishopLookup::BishopBits[64] = {
     6, 5, 5, 5, 5, 5, 5, 6,
@@ -185,3 +190,77 @@ uint64_t BishopLookup::bishopAttack(Square origin, uint64_t blocker) {
 
     return attackSet;
 }
+
+uint64_t const BishopLookup::bishopMagicNumbers[64] = {
+    findMagic(Square::H8),
+    findMagic(Square::G8),
+    findMagic(Square::F8),
+    findMagic(Square::E8),
+    findMagic(Square::D8),
+    findMagic(Square::C8),
+    findMagic(Square::B8),
+    findMagic(Square::A8),
+
+    findMagic(Square::H7),
+    findMagic(Square::G7),
+    findMagic(Square::F7),
+    findMagic(Square::E7),
+    findMagic(Square::D7),
+    findMagic(Square::C7),
+    findMagic(Square::B7),
+    findMagic(Square::A7),
+
+    findMagic(Square::H6),
+    findMagic(Square::G6),
+    findMagic(Square::F6),
+    findMagic(Square::E6),
+    findMagic(Square::D6),
+    findMagic(Square::C6),
+    findMagic(Square::B6),
+    findMagic(Square::A6),
+
+    findMagic(Square::H5),
+    findMagic(Square::G5),
+    findMagic(Square::F5),
+    findMagic(Square::E5),
+    findMagic(Square::D5),
+    findMagic(Square::C5),
+    findMagic(Square::B5),
+    findMagic(Square::A5),
+
+    findMagic(Square::H4),
+    findMagic(Square::G4),
+    findMagic(Square::F4),
+    findMagic(Square::E4),
+    findMagic(Square::D4),
+    findMagic(Square::C4),
+    findMagic(Square::B4),
+    findMagic(Square::A4),
+
+    findMagic(Square::H3),
+    findMagic(Square::G3),
+    findMagic(Square::F3),
+    findMagic(Square::E3),
+    findMagic(Square::D3),
+    findMagic(Square::C3),
+    findMagic(Square::B3),
+    findMagic(Square::A3),
+
+    findMagic(Square::H2),
+    findMagic(Square::G2),
+    findMagic(Square::F2),
+    findMagic(Square::E2),
+    findMagic(Square::D2),
+    findMagic(Square::C2),
+    findMagic(Square::B2),
+    findMagic(Square::A2),
+
+    findMagic(Square::H1),
+    findMagic(Square::G1),
+    findMagic(Square::F1),
+    findMagic(Square::E1),
+    findMagic(Square::D1),
+    findMagic(Square::C1),
+    findMagic(Square::B1),
+    findMagic(Square::A1),
+};
