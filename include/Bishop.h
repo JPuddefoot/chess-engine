@@ -13,13 +13,18 @@
 // Bishop //
 ////////////
 
-class Bishop: public Piece {
+class Bishops: public Piece {
     public:
         Bishops(Color color);
         std::string name = "B";
         void generateMoves(const bitboard_t & white_pieces,
-            const & bitboard_t & black_pieces, std::vector<Move> & moveList);
+            const bitboard_t & black_pieces, std::vector<Move> & moveList);
 
         virtual std::string const & getName() {return name;}
 
-}
+        static constexpr const uint64_t *magicNums =
+            BishopLookup::bishopMagicNumbers;
+
+};
+
+#endif

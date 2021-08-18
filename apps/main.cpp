@@ -3,24 +3,24 @@
 
 #include <Board.h>
 
-#include <RookLookup.h>
+#include <Bishop.h>
 
 
 
 int main() {
 
-    Board board = Board();
+    //Board board = Board();
 
-    board.generateMoves();
+   // board.generateMoves();
 
  //   std::cout << board.printBoard();
 
-    board.makeMove(Square::E2, Square::E4);
-    board.makeMove(Square::D7, Square::D5);
+  //  board.makeMove(Square::E2, Square::E4);
+  //  board.makeMove(Square::D7, Square::D5);
 
 //    std::cout << board.printBoard();
 
-    board.generateMoves();
+  //  board.generateMoves();
 
  //   std::cout << bitboard_to_string(board.whitePieces);
 
@@ -35,12 +35,18 @@ int main() {
 
 
 
-  RookLookup::generateRookMoveSetforSquare(Square::D4);
+  //RookLookup::generateRookMoveSetforSquare(Square::H7);
   //generateRookMoveSetforSquare(Square::A1);
 
    // for (auto const & magicNum : RookLookup::rookMagicNumbers) {
    //     std::cout << magicNum << "\n";
    // }
+
+    Bishops whiteBishops = Bishops(Color::White);
+
+    for (int i = 0 ; i < 64; i++) {
+        std::cout << whiteBishops.magicNums[i] << "\n";
+    }
 
 
 
