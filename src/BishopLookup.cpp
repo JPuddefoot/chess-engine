@@ -12,7 +12,6 @@ uint64_t BishopLookup::findMagic(Square origin) {
     uint64_t blockers[4096], attackSets[4096];
     std::array<uint64_t, 4096> hashTable;
     int m_bits = BishopBits[static_cast<int>(origin)];
-    int fail;
 
     uint64_t mask = bishopMask(origin);
     int numBlockers = count_1s(mask);
@@ -25,13 +24,14 @@ uint64_t BishopLookup::findMagic(Square origin) {
     }
 
     // Go through many different trial magic numbers
-    for (int k = 0; k<100000; k++) {
+    for (int k = 0; k<1000000; k++) {
+        int fail = 0;
         uint64_t magic = random_uint64_fewbits();
         if (count_1s((mask * magic) & 0xFF00000000000000ULL) < 6) continue;
         for (int i=0; i<4096; i++) {
             hashTable[i] = 0ULL; // reset the array after last attempt
         }
-        for (int i=0, fail=0; !fail && i < (1 << numBlockers); i++) {
+        for (int i=0; !fail && i < (1 << numBlockers); i++) {
             int j = transform(blockers[i], magic, m_bits);
             // Check for collisions
             if (hashTable[j] == 0ULL) {

@@ -33,10 +33,10 @@ uint64_t RookLookup::generateRookMoveSetforSquare(Square const & origin) {
     std::vector<bitboard_t> blockerBoards = generateBlockerBoards(
         blockerMask);
 
-    int num_bits = blockerMask.count();
+    int num_bits = blockerMask.count()+2;
 
     // Try a certain amount of magic numbers before quitting
-    for (int i=0; i<100000; i++) {
+    for (int i=0; i<10000; i++) {
 
         moveSet.clear(); // clear map before each attempt
 
@@ -55,13 +55,13 @@ uint64_t RookLookup::generateRookMoveSetforSquare(Square const & origin) {
             bitboard_t moveBoard = generateRookMoveBoard(blockerBoard, origin);
             // Generate the hash
             uint64_t blockerBoardInt = blockerBoard.to_ullong();
-          //  std::cout << "Blockers" << bitboard_to_string(blockerBoard);
+            std::cout << "Bloc: \t" << blockerBoard;
             uint64_t moveBoardInt = moveBoard.to_ullong();
-          //  std::cout << "PreHash" << bitboard_to_string(blockerBoardInt*magicNum);
+           // std::cout << "Move Board" << bitboard_to_string(moveBoard);
+            std::cout << "\nPreH: \t" << bitboard_t(blockerBoardInt*magicNum);
             int hash = (blockerBoardInt * magicNum) >> (64-num_bits);
-          //  std::cout << "HASH: " << hash << bitboard_to_string(hash) << "\n";
-          //  std::bitset<12> x(hash);
-          //  std::cout << x << "\n";
+            std::cout << "\nHASH: \t" << bitboard_t(hash) << "\n";
+
 
             // Try placing moveboard at hash in map - if collision check if
             // current entry is same or not
@@ -188,12 +188,15 @@ bitboard_t RookLookup::generateRookMoveBoard(bitboard_t const & blockerBoard,
     while(currentPos_int > static_cast<int>(Square::A8)) {
         // move up to next square
         currentPos_int -= 8;
-        // if blocker piece, break out of upwards direction
+
+        // Add square as a valid move
+        moveSet.set(currentPos_int);
+
+        // If last square added has a blocker piece, stop direction
+        // (Can take first piece in direction but can't go any further)
         if (blockerBoard.test(currentPos_int)) {
             break;
         }
-        // else, add square as a valid move
-        moveSet.set(currentPos_int);
     }
 
     // Add in downwards direction until reach a blocker or end of board
@@ -201,12 +204,15 @@ bitboard_t RookLookup::generateRookMoveBoard(bitboard_t const & blockerBoard,
     while (currentPos_int < static_cast<int>(Square::H1)) {
         // move down to next square
         currentPos_int += 8;
-        // if blocker piece, break out of current direction
+
+        // Add square as a valid move
+        moveSet.set(currentPos_int);
+
+        // If last square added has a blocker piece, stop direction
+        // (Can take first piece in direction but can't go any further)
         if (blockerBoard.test(currentPos_int)) {
             break;
         }
-        // add square as valid move
-        moveSet.set(currentPos_int);
     }
 
     currentPos_int = static_cast<int>(origin); // reset current pos to origin
@@ -220,12 +226,15 @@ bitboard_t RookLookup::generateRookMoveBoard(bitboard_t const & blockerBoard,
     while (currentPos_int < row_end) {
         // move down to next square
         currentPos_int += 1;
-        // if blocker piece, break out of current direction
+
+        // Add square as a valid move
+        moveSet.set(currentPos_int);
+
+        // If last square added has a blocker piece, stop direction
+        // (Can take first piece in direction but can't go any further)
         if (blockerBoard.test(currentPos_int)) {
             break;
         }
-        // add square as valid move
-        moveSet.set(currentPos_int);
     }
 
     currentPos_int = static_cast<int>(origin); // reset current pos to origin
@@ -234,12 +243,14 @@ bitboard_t RookLookup::generateRookMoveBoard(bitboard_t const & blockerBoard,
     while (currentPos_int > row_start) {
         // move down to next square
         currentPos_int -= 1;
-        // if blocker piece, break out of current direction
+        // Add square as a valid move
+        moveSet.set(currentPos_int);
+
+        // If last square added has a blocker piece, stop direction
+        // (Can take first piece in direction but can't go any further)
         if (blockerBoard.test(currentPos_int)) {
             break;
         }
-        // add square as valid move
-        moveSet.set(currentPos_int);
     }
 
     return moveSet;

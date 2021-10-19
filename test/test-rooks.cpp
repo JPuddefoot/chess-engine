@@ -126,8 +126,9 @@ TEST_CASE("Test generation of move board for given blockerBoard") {
         bitboard_t BlockerBoard = generateBitboard(std::vector<Square>{
             Square::A5, Square::A7});
         bitboard_t correctMoveBoard = generateBitboard(std::vector<Square>{
-            Square::A2, Square::A3, Square::A4, Square::B1, Square::C1,
-            Square::D1, Square::E1, Square::F1, Square::G1, Square::H1
+            Square::A2, Square::A3, Square::A4, Square::A5, Square::B1,
+            Square::C1, Square::D1, Square::E1, Square::F1, Square::G1,
+            Square::H1
         });
         CHECK(correctMoveBoard == RookLookup::generateRookMoveBoard(BlockerBoard,
             Square::A1));
@@ -137,9 +138,20 @@ TEST_CASE("Test generation of move board for given blockerBoard") {
             Square::A8, Square::B1});
         correctMoveBoard = generateBitboard(std::vector<Square>{
             Square::A2, Square::A3, Square::A4, Square::A5, Square::A6,
-            Square::A7
+            Square::A7, Square::A8, Square::B1
         });
         CHECK(correctMoveBoard == RookLookup::generateRookMoveBoard(BlockerBoard,
             Square::A1));
+    }
+    SECTION("Rook on D4") {
+        bitboard_t BlockerBoard = generateBitboard(std::vector<Square>{
+            Square::D6, Square::H4, Square::D1, Square::C4
+        });
+        bitboard_t correctMoveBoard = generateBitboard(std::vector<Square>{
+            Square::D5, Square::D6, Square::E4, Square::F4, Square::G4,
+            Square::H4, Square::D3, Square::D2, Square::D1, Square::C4
+        });
+        CHECK(correctMoveBoard == RookLookup::generateRookMoveBoard(BlockerBoard,
+            Square::D4));
     }
 }
