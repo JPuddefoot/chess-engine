@@ -12,6 +12,7 @@
 #include <King.h>
 #include <Pawns.h>
 #include <Knight.h>
+#include <Bishop.h>
 
 // The board class
 
@@ -40,10 +41,12 @@ class Board {
             std::vector<Piece*>(64, nullptr);
 
         King whiteKing = King(Color::White);
+        Bishops whiteBishops = Bishops(Color::White);
         Pawns whitePawns = Pawns(Color::White);
         Knights whiteKnights = Knights(Color::White);
 
         King blackKing = King(Color::Black);
+        Bishops blackBishops = Bishops(Color::Black);
         Pawns blackPawns = Pawns(Color::Black);
         Knights blackKnights = Knights(Color::Black);
 

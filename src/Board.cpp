@@ -11,6 +11,8 @@ Board::Board() {
 
     // White Pieces
     boardArray[static_cast<int>(Square::E1)] = &whiteKing;
+    boardArray[static_cast<int>(Square::C1)] = &whiteBishops;
+    boardArray[static_cast<int>(Square::F1)] = &whiteBishops;
     boardArray[static_cast<int>(Square::B1)] = &whiteKnights;
     boardArray[static_cast<int>(Square::G1)] = &whiteKnights;
     boardArray[static_cast<int>(Square::A2)] = &whitePawns;
@@ -22,11 +24,14 @@ Board::Board() {
     boardArray[static_cast<int>(Square::G2)] = &whitePawns;
     boardArray[static_cast<int>(Square::H2)] = &whitePawns;
     whitePieces = generateBitboard(std::vector<Square>{
-      Square::E1, Square::B1, Square::G1, Square::A2, Square::B2, Square::C2,
+      Square::E1, Square::F1, Square::C1, Square::B1, Square::G1,
+      Square::A2, Square::B2, Square::C2,
       Square::D2, Square::E2, Square::F2, Square::G2, Square::H2});
 
     // Black Pieces
     boardArray[static_cast<int>(Square::E8)] = &blackKing;
+    boardArray[static_cast<int>(Square::C8)] = &blackBishops;
+    boardArray[static_cast<int>(Square::F8)] = &blackBishops;
     boardArray[static_cast<int>(Square::B8)] = &blackKnights;
     boardArray[static_cast<int>(Square::G8)] = &blackKnights;
     boardArray[static_cast<int>(Square::A7)] = &blackPawns;
@@ -38,7 +43,7 @@ Board::Board() {
     boardArray[static_cast<int>(Square::G7)] = &blackPawns;
     boardArray[static_cast<int>(Square::H7)] = &blackPawns;
     blackPieces = generateBitboard(std::vector<Square>{
-      Square::E8, Square::B8, Square::G8, Square::A7, Square::B7, Square::C7,
+      Square::E8, Square::C8, Square::F8, Square::B8, Square::G8, Square::A7, Square::B7, Square::C7,
       Square::D7, Square::E7, Square::F7, Square::G7, Square::H7});
 
 
@@ -55,12 +60,14 @@ void Board::generateMoves() {
             whiteKing.generateMoves(whitePieces, blackPieces, moveList);
             whitePawns.generateMoves(whitePieces, blackPieces, moveList);
             whiteKnights.generateMoves(whitePieces, blackPieces, moveList);
+            whiteBishops.generateMoves(whitePieces, blackPieces, moveList);
             break;
 
         case false:
             blackKing.generateMoves(whitePieces, blackPieces, moveList);
             blackPawns.generateMoves(whitePieces, blackPieces, moveList);
             blackKnights.generateMoves(whitePieces, blackPieces, moveList);
+            blackBishops.generateMoves(whitePieces, blackPieces, moveList);
             break;
     }
 }

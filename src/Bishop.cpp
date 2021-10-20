@@ -22,13 +22,11 @@ void Bishops::generateMoves(const bitboard_t & white_pieces,
         for (std::size_t bit=0; bit<currentPos.size(); bit++) {
             if (currentPos.test(bit)) {
                 Square origin = static_cast<Square>(bit);
-                std::cout << "origin " << Square_array[bit] << "\n";
                 uint64_t bishopMask = BishopLookup::bishopMask(origin);
 
                 uint64_t bishopBlocker = bishopMask &
                     (white_pieces.to_ulong() | black_pieces.to_ulong());
 
-                std::cout << bitboard_to_string(bishopBlocker);
                 // get the hash for specific square and blockers
                 int hash = bishopBlocker*magicNums[bit] >>
                     (64-BishopLookup::BishopBits[bit]);
