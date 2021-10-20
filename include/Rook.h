@@ -1,14 +1,16 @@
-#ifndef ROOK_H
-#define ROOK_H
+#ifndef Rook_H
+#define Rook_H
 
-#include <utils.h>
+#include <vector>
+
 #include <Move.h>
+#include <utils.h>
 #include <RookLookup.h>
 
 #include <Piece.h>
 
 //////////
-// ROOK //
+// Rook //
 //////////
 
 class Rooks: public Piece {
@@ -20,6 +22,11 @@ class Rooks: public Piece {
 
         virtual std::string const & getName() {return name;}
 
+        static constexpr const uint64_t *magicNums =
+            RookLookup::rookMagicNumbers;
 };
+
+
+
 
 #endif

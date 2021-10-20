@@ -1,20 +1,6 @@
 #ifndef RookLookup_H
 #define RookLookup_H
 
-// Generates the attack set for a horizontally/vertically moving piece
-// using magic bitboard:
-
-// Magic Bitboards
-
-// For each square:
-//  generate the blocker mask (all squares that could block piece)
-//  generate all possible combos of blocking boards
-//  For each blocking board:
-//      Generate the move board
-//      using random 64bit numbers, try (blockerboard*number) >> (64-numbits)
-//      if two different blocker boards have same index, try a new number
-//      Finally, store move board at that index
-
 #include <cmath>
 #include <random>
 #include <unordered_map>
@@ -25,26 +11,29 @@
 class RookLookup {
     public:
 
-        // Lookup table of Rook moves - Each square has a map of a hash and a moveboard
-        static std::vector<std::unordered_map<uint64_t, uint64_t>>moveSets;
+        static const uint64_t rookMagicNumbers[64];
 
-        // Lookup table of Rook Magic Numbers
-        static const std::vector<uint64_t>rookMagicNumbers;
+        static std::unordered_map<Square, std::array<uint64_t,4096>>attackTable;
 
-        // Generate the mapping and magic number for a given square
-        static uint64_t generateRookMoveSetforSquare(Square const & origin);
+        static uint64_t rookMask(Square origin);
+        static uint64_t rookAttack(Square origin, uint64_t blocker);
+        static uint64_t findMagic(Square origin);
 
-        // Generate the blocker mask for a given square
-        static bitboard_t generateRookBlockerMask(Square const & origin);
+        static int count_1s(uint64_t bitboard);
+        static int transform(uint64_t blocker, uint64_t magic, int bits);
+        static int RookBits[64];
+        static int BitTable[64];
 
-        // Generate all combinations of blocker boards for a given blocker mask
-        static std::vector<bitboard_t> generateBlockerBoards(
-            bitboard_t const & blockerMask);
+    private:
 
-        // For a given blocker board, generate the move board
-        static bitboard_t generateRookMoveBoard(bitboard_t const & blockerBoard,
-            Square const & origin);
 
+        static uint64_t index_to_uint64(int index, int bits, uint64_t m);
+
+        static uint64_t random_uint64_fewbits();
+
+        static uint64_t random_uint64();
+
+        static int pop_1st_bit(uint64_t * bb);
 
 };
 

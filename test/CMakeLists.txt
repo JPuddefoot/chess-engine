@@ -7,7 +7,7 @@ FetchContent_MakeAvailable(catch)
 
 # Add tests as executable
 add_executable(TEST tests-main.cpp tests-pawns.cpp test-knights.cpp
-    test-king.cpp test-piece.cpp test-board.cpp test-rooks.cpp test-bishops.cpp)
+    test-king.cpp test-piece.cpp test-board.cpp test-bishops.cpp)
 
 target_compile_features(TEST PRIVATE cxx_std_17)
 

@@ -1,62 +1,51 @@
 #include <Rook.h>
+
 #include <iostream>
 
 Rooks::Rooks(Color color) {
     this->color = color;
-    if (color == Color::White) {
+    if (color == Color::White)
         initialPos = generateBitboard(
             std::vector<Square>{Square::A1, Square::H1});
-    }
-    if (color == Color::Black) {
+    if (color == Color::Black)
         initialPos = generateBitboard(
             std::vector<Square>{Square::A8, Square::H8});
-    }
     currentPos = initialPos;
 };
 
 void Rooks::generateMoves(const bitboard_t & white_pieces,
     const bitboard_t & black_pieces, std::vector<Move> & moveList) {
 
-
-
-    // Go through bitboard to find a rook position
     if (currentPos.any()) {
         for (std::size_t bit=0; bit<currentPos.size(); bit++) {
-            // For each rook, create the blockerBoard from white & black pieces
-            // Get the magic number for the origin square, then create the hash
-            // Finally get the moveSet for that particular hash
             if (currentPos.test(bit)) {
                 Square origin = static_cast<Square>(bit);
-                bitboard_t rookBlockerMask = RookLookup::generateRookBlockerMask(
-                    origin);
 
-                // AND mask with black and white pieces to get blockerBoard
-                bitboard_t blockerBoard = (rookBlockerMask & white_pieces) |
-                    (rookBlockerMask & black_pieces);
+                uint64_t rookMask = RookLookup::rookMask(origin);
+                uint64_t rookBlocker = rookMask &
+                    (white_pieces.to_ulong() | black_pieces.to_ulong());
 
-                std::cout << bitboard_to_string(blockerBoard);
+                // get hash for specific square and blockers
+                int hash = rookBlocker*magicNums[bit] >>
+                    (64-RookLookup::RookBits[bit]);
 
-                size_t originNum = static_cast<size_t>(origin);
+                //std::cout << "hash: " << hash << "\n";
 
-                uint64_t magicNum = RookLookup::rookMagicNumbers.at(originNum);
-                std::cout << "Magic Num: " << magicNum << "\n";
+                bitboard_t attackSet = RookLookup::attackTable[origin][hash];
 
-                // get hash from blocker and magic number
-                uint64_t hash = (blockerBoard.to_ullong() * magicNum) >>
-                    (64-blockerBoard.count() + 3);
-                std::cout << hash << "\n";
+                std::cout << bitboard_to_string(attackSet);
 
-                // check hash in map
-                if (RookLookup::moveSets.at(originNum).count(hash)) {
-                    std::cout << "Hash in map" << "\n";
+                // For each allowed move, create a move and add to moveList
+                for (std::size_t allowed_bit=0;
+                    allowed_bit<attackSet.size(); allowed_bit++) {
+
+                    if (attackSet.test(allowed_bit)) {
+                        Square destination = static_cast<Square>(allowed_bit);
+                        moveList.push_back(Move {origin, destination});
+                    }
                 }
-                else {
-                    std::cout << "Damn, start again";
-                }
-                //std::cout << "Move Set: " << bitboard_to_string(
-                 //   RookLookup::moveSets.at(static_cast<size_t>(origin))[hash]);
-
+                // TODO - need to rule out ability to take own color pieces
             }
         }
     }
-};
+}

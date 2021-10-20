@@ -1,402 +1,261 @@
 #include <RookLookup.h>
 #include <iostream>
 
-// Generate the rook moveset for a given square, indexed using a magic number
-// Starting with a random 64-bit number, go through each blockerboard, generate
-// a hash and the associated move board. Try and place the move board in the map
-// with the hash as a key. If already something there, compare move boards. If
-// the move boards are the same this is fine, else have to start again with a
-// different random number.
-// Returns the magic number and changes a map of movesets for that particular
-// square (which is given as an argument)
+uint64_t RookLookup::findMagic(Square origin) {
+    // Finds a working magic number for a given square.
+    // For every possible blocker board, gets the correct attackSet
+    // With a trial magic number, generates hashes for each attackSet and
+    // attempts to place. If colliding hashes for different attackSets, try a
+    // different magic number.
 
+    uint64_t blockers[4096], attackSets[4096];
+    std::array<uint64_t, 4096> hashTable;
+    int m_bits = RookBits[static_cast<int>(origin)];
 
+    uint64_t mask = rookMask(origin);
+    int numBlockers = count_1s(mask);
 
+    // Go through all possible blocker masks (i.e 0 to 2^numBlockers) and
+    // put them and attackSet into arrays
+    for (int i=0; i < (1 << numBlockers); i++) {
+        blockers[i] = index_to_uint64(i, numBlockers, mask);
+        attackSets[i] = rookAttack(origin, blockers[i]);
 
-uint64_t RookLookup::generateRookMoveSetforSquare(Square const & origin) {
+    }
 
-    // map of movesets, indexed by hash
-    std::unordered_map<int, uint64_t>moveSet;
-    //std::unordered_map<long long int, long long int>::iterator it;
-
-    // Create a random number to be turned into bitset
-    std::random_device rd; // used to obtain seed for rng
-    std::mt19937_64 gen(rd()); // mersenne_tweister engine seeded with rd()
-    std::uniform_int_distribution<uint64_t> distrib(0,std::llround(
-        std::pow(2,64)));
-
-    uint64_t magicNum = 0;
-
-
-    // generate full list of blocking boards
-    bitboard_t blockerMask = generateRookBlockerMask(origin);
-    std::vector<bitboard_t> blockerBoards = generateBlockerBoards(
-        blockerMask);
-
-    int num_bits = blockerMask.count()+2;
-
-    // Try a certain amount of magic numbers before quitting
-    for (int i=0; i<10000; i++) {
-
-        moveSet.clear(); // clear map before each attempt
-
-        bool validNum = true;
-
-        // Generate the random magic number candidate
-        magicNum = distrib(gen);
-        std::cout << magicNum << "\n";
-
-
-        //std::cout << "magicNum: " << magicNum << "\n";
-
-        // Go through blockerBoards
-        for (bitboard_t blockerBoard : blockerBoards) {
-            // Create the moveBoard
-            bitboard_t moveBoard = generateRookMoveBoard(blockerBoard, origin);
-            // Generate the hash
-            uint64_t blockerBoardInt = blockerBoard.to_ullong();
-            std::cout << "Bloc: \t" << blockerBoard;
-            uint64_t moveBoardInt = moveBoard.to_ullong();
-           // std::cout << "Move Board" << bitboard_to_string(moveBoard);
-            std::cout << "\nPreH: \t" << bitboard_t(blockerBoardInt*magicNum);
-            int hash = (blockerBoardInt * magicNum) >> (64-num_bits);
-            std::cout << "\nHASH: \t" << bitboard_t(hash) << "\n";
-
-
-            // Try placing moveboard at hash in map - if collision check if
-            // current entry is same or not
-
-            if (moveSet.count(hash) == 0) {
-                moveSet[hash] = moveBoardInt;
-                continue;
+    // Go through many different trial magic numbers
+    for (int k = 0; k<10000000; k++) {
+        int fail = 0;
+        uint64_t magic = random_uint64_fewbits();
+        if (count_1s((mask * magic) & 0xFF00000000000000ULL) < 6) continue;
+        for (int i=0; i<4096; i++) {
+            hashTable[i] = 0ULL; // reset the array after last attempt
+        }
+        for (int i=0; !fail && i < (1 << numBlockers); i++) {
+            int j = transform(blockers[i], magic, m_bits);
+            // Check for collisions
+            if (hashTable[j] == 0ULL) {
+                // No collision - can assign to array
+                hashTable[j] = attackSets[i];
             }
-            // if the move boards are the same can allow the collision
-            else if (moveSet[hash] == moveBoardInt) {
-            //    std::cout << "FINE COLLISION: " << "\n";
-            //    std::cout << "Hash: " << hash << "\n";
-            //    std::cout << "Current Moveboard: " << moveBoardInt << "\n";
-            //    std::cout << "Moveboard at hash: " << moveSet[hash] << "\n";
-                continue;
-            }
-            else {
-                // Need to try a new magic number
-
-                validNum = false;
-              //  std::cout << "Bad NUM" << "\n";
-              //  std::cout << "Hash: " << hash << "\n";
-              //  std::cout << "Current Moveboard: " << moveBoardInt << "\n";
-              //  std::cout << "Moveboard at hash: " << moveSet[hash] << "\n";
-                break;
+            else if (hashTable[j] != attackSets[i]) {
+              //  std::cout << bitboard_to_string(hashTable[j]);
+              //  std::cout << bitboard_to_string(attackSets[i]);
+                fail = 1;
             }
         }
-        // If code gets to here and valid num is true, can return moveSet
-        // Else try a new magic number
-        if (validNum) {
-            //std::cout << "Found Number:: " << magicNum;
-            // Add map to vector of maps
-            return magicNum;
+        // Trial number passed - is working magic number!!
+        if (!fail) {
+            attackTable[origin] = hashTable;
+            return magic;
         }
     }
-
-
-    throw std::invalid_argument("Couldn't find legitimate magic number!");
-    return -1;
-
-}
-// For a given square, add a 1 to bitboard vertically/horizontally until
-// reach the edge
-bitboard_t RookLookup::generateRookBlockerMask(Square const & origin) {
-
-    bitboard_t blockerMask = generateBitboard(std::vector<Square>{});
-
-
-    std::size_t int_origin = static_cast<size_t>(origin);
-
-
-    // get row start and end
-    int row_start = int_origin/8 * 8; // int division to get multiple of 8
-    int row_end = row_start + 7;
-
-    // get column
-    int col = int_origin - row_start;
-
-    // fill whole row
-    for (row_start; row_start<row_end-1; row_start++) {
-        blockerMask.set(row_start+1);
-    }
-
-    // fill whole column
-    for (int i=1; i<7; i++) {
-        blockerMask.set(col+i*8);
-    }
-
-    // finally, set the origin square bit to 0
-    blockerMask.reset(int_origin);
-
-    return blockerMask;
+    return 0ULL;
 }
 
-std::vector<bitboard_t> RookLookup::generateBlockerBoards(
-    bitboard_t const & blockerMask) {
-    // To generate all possible blockerboards, need to get all possible
-    // combinations of 1s and 0s from relevant squares. To do this,
-    // can create bitsets for each number from 0 to 2^no.bits, and
-    // use these to generate the bitboards by placing each bit on the relevant
-    // square
+std::unordered_map<Square, std::array<uint64_t,4096>> RookLookup::attackTable = {};
 
-    std::vector<bitboard_t> blockerBoards = {};
-
-    // Create a vector of squares used in blocker, in order of index
-    std::vector<Square> relevantSquares = {};
-    for (size_t bit=0; bit<blockerMask.size(); bit++) {
-        if (blockerMask.test(bit)) {
-            relevantSquares.push_back(static_cast<Square>(bit));
-        }
-    }
-
-
-    // loop through numbers from 0 to 2^bits, convert to binary and assign
-    // each true bit to the relevant blocking square, then create the bitboard
-    const int num_bits = blockerMask.count();
-    for (size_t i=0; i<std::pow(2,num_bits); i++) {
-        std::bitset<13> blockingBitset{i};  // 12 should be the maximum number of blocking pieces
-        // go through bitset, for each turned on bit, add relevant square to vector
-
-        std::vector<Square> blockingSquares = {};
-        for (size_t j=0; j<num_bits; j++) {
-            if (blockingBitset.test(j)) {
-                blockingSquares.push_back(relevantSquares.at(j));
-            }
-        }
-        blockerBoards.push_back(generateBitboard(blockingSquares));
-
-    }
-
-    return blockerBoards;
+uint64_t RookLookup::random_uint64() {
+  uint64_t u1, u2, u3, u4;
+  u1 = (uint64_t)(random()) & 0xFFFF; u2 = (uint64_t)(random()) & 0xFFFF;
+  u3 = (uint64_t)(random()) & 0xFFFF; u4 = (uint64_t)(random()) & 0xFFFF;
+  return u1 | (u2 << 16) | (u3 << 32) | (u4 << 48);
 }
 
-// Generate the attack set for a rook given a blocker mask
-// Note this will allow attacks on same color pieces - need to remove later
-bitboard_t RookLookup::generateRookMoveBoard(bitboard_t const & blockerBoard,
-    Square const & origin) {
+int RookLookup::transform(uint64_t blocker, uint64_t magic, int bits) {
+    return (int)((blocker*magic) >> (64-bits));
+}
 
-    bitboard_t moveSet = generateBitboard(std::vector<Square>{});
+uint64_t RookLookup::random_uint64_fewbits() {
+    return random_uint64() & random_uint64() & random_uint64();
+}
 
-    int currentPos_int = static_cast<int>(origin);
+uint64_t RookLookup::rookAttack(Square origin, uint64_t blocker) {
+    // Returns the attack set for a rook on the origin square, given
+    // a particular blocker board
 
-    // Add ones in upwards direction until reach a blocker piece or end of board
-    while(currentPos_int > static_cast<int>(Square::A8)) {
-        // move up to next square
-        currentPos_int -= 8;
+    uint64_t attackSet = 0ULL;
 
-        // Add square as a valid move
-        moveSet.set(currentPos_int);
+    int origin_int = static_cast<int>(origin);
 
-        // If last square added has a blocker piece, stop direction
-        // (Can take first piece in direction but can't go any further)
-        if (blockerBoard.test(currentPos_int)) {
+    int rank = origin_int/8;
+    int file = origin_int % 8;
+
+    // go through each possible move - if there is a piece on that square
+    // then stop after adding that square to the attack set
+    for (int r = rank, f = file+1; f<=7; f++) {
+        attackSet |= (1ULL << (f+r*8));
+        if (blocker & (1ULL << (f+r*8))) {
+            break;
+        }
+    }
+    for (int r = rank, f = file-1; f>=0; f--) {
+        attackSet |= (1ULL << (f+r*8));
+        if (blocker & (1ULL << (f+r*8))) {
+            break;
+        }
+    }
+    for (int r = rank+1, f = file; r<=7; r++) {
+        attackSet |= (1ULL << (f+r*8));
+        if (blocker & (1ULL << (f+r*8))) {
+            break;
+        }
+    }
+    for (int r = rank-1, f = file; r>=0; r--) {
+        attackSet |= (1ULL << (f+r*8));
+        if (blocker & (1ULL << (f+r*8))) {
             break;
         }
     }
 
-    // Add in downwards direction until reach a blocker or end of board
-    currentPos_int = static_cast<int>(origin); // reset current pos to origin
-    while (currentPos_int < static_cast<int>(Square::H1)) {
-        // move down to next square
-        currentPos_int += 8;
+    return attackSet;
 
-        // Add square as a valid move
-        moveSet.set(currentPos_int);
-
-        // If last square added has a blocker piece, stop direction
-        // (Can take first piece in direction but can't go any further)
-        if (blockerBoard.test(currentPos_int)) {
-            break;
-        }
-    }
-
-    currentPos_int = static_cast<int>(origin); // reset current pos to origin
-
-    // get row start and end for left/right movement
-    int row_start = currentPos_int/8 * 8; // int division to get multiple of 8
-    int row_end = row_start + 7;
-
-    // Add in left direction until reach a blocker or end of board
-
-    while (currentPos_int < row_end) {
-        // move down to next square
-        currentPos_int += 1;
-
-        // Add square as a valid move
-        moveSet.set(currentPos_int);
-
-        // If last square added has a blocker piece, stop direction
-        // (Can take first piece in direction but can't go any further)
-        if (blockerBoard.test(currentPos_int)) {
-            break;
-        }
-    }
-
-    currentPos_int = static_cast<int>(origin); // reset current pos to origin
-
-    // Add in right direction until reach blocker or end of board
-    while (currentPos_int > row_start) {
-        // move down to next square
-        currentPos_int -= 1;
-        // Add square as a valid move
-        moveSet.set(currentPos_int);
-
-        // If last square added has a blocker piece, stop direction
-        // (Can take first piece in direction but can't go any further)
-        if (blockerBoard.test(currentPos_int)) {
-            break;
-        }
-    }
-
-    return moveSet;
 }
 
-/*
-// Initialise RookLookup moveSets and magic numbers - static members have to
-// be declared like this
-std::vector<std::unordered_map<uint64_t, uint64_t>> RookLookup::moveSets = {};
 
-const std::vector<uint64_t> RookLookup::rookMagicNumbers = {
-    // H8
-    generateRookMoveSetforSquare(Square::H8, moveSets),
-    // G8
-    generateRookMoveSetforSquare(Square::G8, moveSets),
-    // F8
-    generateRookMoveSetforSquare(Square::F8, moveSets),
-    // E8
-    generateRookMoveSetforSquare(Square::E8, moveSets),
-    // D8
-    generateRookMoveSetforSquare(Square::D8, moveSets),
-    // C8
-    generateRookMoveSetforSquare(Square::C8, moveSets),
-    // B8
-    generateRookMoveSetforSquare(Square::B8, moveSets),
-    // A8
-    generateRookMoveSetforSquare(Square::A8, moveSets),
-
-    // H7
-    generateRookMoveSetforSquare(Square::H7, moveSets),
-    // G7
-    generateRookMoveSetforSquare(Square::G7, moveSets),
-    // F7
-    generateRookMoveSetforSquare(Square::F7, moveSets),
-    // E7
-    generateRookMoveSetforSquare(Square::E7, moveSets),
-    // D7
-    generateRookMoveSetforSquare(Square::D7, moveSets),
-    // C7
-    generateRookMoveSetforSquare(Square::C7, moveSets),
-    // B7
-    generateRookMoveSetforSquare(Square::B7, moveSets),
-    // A7
-    generateRookMoveSetforSquare(Square::A7, moveSets),
-
-    // H6
-    generateRookMoveSetforSquare(Square::H6, moveSets),
-    // G6
-    generateRookMoveSetforSquare(Square::G6, moveSets),
-    // F6
-    generateRookMoveSetforSquare(Square::F6, moveSets),
-    // E6
-    generateRookMoveSetforSquare(Square::E6, moveSets),
-    // D6
-    generateRookMoveSetforSquare(Square::D6, moveSets),
-    // C6
-    generateRookMoveSetforSquare(Square::C6, moveSets),
-    // B6
-    generateRookMoveSetforSquare(Square::B6, moveSets),
-    // A6
-    generateRookMoveSetforSquare(Square::A6, moveSets),
-
-    // H5
-    generateRookMoveSetforSquare(Square::H5, moveSets),
-    // G5
-    generateRookMoveSetforSquare(Square::G5, moveSets),
-    // F5
-    generateRookMoveSetforSquare(Square::F5, moveSets),
-    // E5
-    generateRookMoveSetforSquare(Square::E5, moveSets),
-    // D5
-    generateRookMoveSetforSquare(Square::D5, moveSets),
-    // C5
-    generateRookMoveSetforSquare(Square::C5, moveSets),
-    // B5
-    generateRookMoveSetforSquare(Square::B5, moveSets),
-    // A5
-    generateRookMoveSetforSquare(Square::A5, moveSets),
-
-    // H4
-    generateRookMoveSetforSquare(Square::H4, moveSets),
-    // G4
-    generateRookMoveSetforSquare(Square::G4, moveSets),
-    // F4
-    generateRookMoveSetforSquare(Square::F4, moveSets),
-    // E4
-    generateRookMoveSetforSquare(Square::E4, moveSets),
-    // D4
-    generateRookMoveSetforSquare(Square::D4, moveSets),
-    // C4
-    generateRookMoveSetforSquare(Square::C4, moveSets),
-    // B4
-    generateRookMoveSetforSquare(Square::B4, moveSets),
-    // A4
-    generateRookMoveSetforSquare(Square::A4, moveSets),
-
-    // H3
-    generateRookMoveSetforSquare(Square::H3, moveSets),
-    // G3
-    generateRookMoveSetforSquare(Square::G3, moveSets),
-    // F3
-    generateRookMoveSetforSquare(Square::F3, moveSets),
-    // E3
-    generateRookMoveSetforSquare(Square::E3, moveSets),
-    // D3
-    generateRookMoveSetforSquare(Square::D3, moveSets),
-    // C3
-    generateRookMoveSetforSquare(Square::C3, moveSets),
-    // B3
-    generateRookMoveSetforSquare(Square::B3, moveSets),
-    // A3
-    generateRookMoveSetforSquare(Square::A3, moveSets),
-
-    // H2
-    generateRookMoveSetforSquare(Square::H2, moveSets),
-    // G2
-    generateRookMoveSetforSquare(Square::G2, moveSets),
-    // F2
-    generateRookMoveSetforSquare(Square::F2, moveSets),
-    // E2
-    generateRookMoveSetforSquare(Square::E2, moveSets),
-    // D2
-    generateRookMoveSetforSquare(Square::D2, moveSets),
-    // C2
-    generateRookMoveSetforSquare(Square::C2, moveSets),
-    // B2
-    generateRookMoveSetforSquare(Square::B2, moveSets),
-    // A2
-    generateRookMoveSetforSquare(Square::A2, moveSets),
-
-    // H1
-    generateRookMoveSetforSquare(Square::H1, moveSets),
-    // G1
-    generateRookMoveSetforSquare(Square::G1, moveSets),
-    // F1
-    generateRookMoveSetforSquare(Square::F1, moveSets),
-    // E1
-    generateRookMoveSetforSquare(Square::E1, moveSets),
-    // D1
-    generateRookMoveSetforSquare(Square::D1, moveSets),
-    // C1
-    generateRookMoveSetforSquare(Square::C1, moveSets),
-    // B1
-    generateRookMoveSetforSquare(Square::B1, moveSets),
-    // A1
-    generateRookMoveSetforSquare(Square::A1, moveSets),
+int RookLookup::BitTable[64] = {
+    63, 30, 3, 32, 25, 41, 22, 33, 15, 50, 42, 13, 11, 53, 19, 34, 61, 29, 2,
+    51, 21, 43, 45, 10, 18, 47, 1, 54, 9, 57, 0, 35, 62, 31, 40, 4, 49, 5, 52,
+    26, 60, 6, 23, 44, 46, 27, 56, 16, 7, 39, 48, 24, 59, 14, 12, 55, 38, 28,
+    58, 20, 37, 17, 36, 8
 };
-*/
+
+int RookLookup::pop_1st_bit(uint64_t *bb) {
+  uint64_t b = *bb ^ (*bb - 1);
+  unsigned int fold = (unsigned) ((b & 0xffffffff) ^ (b >> 32));
+  *bb &= (*bb - 1);
+  return BitTable[(fold * 0x783a9b23) >> 26];
+}
+
+uint64_t RookLookup::index_to_uint64(int index, int bits, uint64_t m) {
+    uint64_t result = 0ULL;
+    for (int i = 0; i<bits; i++) {
+        int j = pop_1st_bit(&m);
+        if (index & (1 << i)) {
+            result |= (1ULL << j);
+        }
+    }
+    return result;
+}
+
+
+int RookLookup::count_1s(uint64_t bitboard) {
+    // Counts the number of 1s (i.e occupied squares) in a bitboard
+    int r;
+    for (r = 0; bitboard; r++, bitboard&=bitboard-1);
+    return r;
+}
+
+uint64_t RookLookup::rookMask(Square origin) {
+    // Returns a mask for given square - i.e bitboard covering all
+    // possible moves for rook, except at board edges
+
+    uint64_t mask = 0ULL;
+
+    int origin_int = static_cast<int>(origin);
+
+    int rank = origin_int/8;
+    int file = origin_int % 8;
+
+    for (int r = rank, f = file+1; f<=6; f++) {
+        mask |= (1ULL << (f+r*8));
+    }
+    for (int r = rank, f = file-1; f>=1; f--) {
+        mask |= (1ULL << (f+r*8));
+    }
+    for (int r = rank+1, f = file; r<=6; r++) {
+        mask |= (1ULL << (f+r*8));
+    }
+    for (int r = rank-1, f = file; r>=1; r--) {
+        mask |= (1ULL << (f+r*8));
+    }
+
+    return mask;
+}
+
+
+int RookLookup::RookBits[64] = {
+    12, 11, 11, 11, 11, 11, 11, 12,
+    11, 10, 10, 10, 10, 10, 10, 11,
+    11, 10, 10, 10, 10, 10, 10, 11,
+    11, 10, 10, 10, 10, 10, 10, 11,
+    11, 10, 10, 10, 10, 10, 10, 11,
+    11, 10, 10, 10, 10, 10, 10, 11,
+    11, 10, 10, 10, 10, 10, 10, 11,
+    12, 11, 11, 11, 11, 11, 11, 12
+};
+
+uint64_t const RookLookup::rookMagicNumbers[64] = {
+    findMagic(Square::H8),
+    findMagic(Square::G8),
+    findMagic(Square::F8),
+    findMagic(Square::E8),
+    findMagic(Square::D8),
+    findMagic(Square::C8),
+    findMagic(Square::B8),
+    findMagic(Square::A8),
+
+    findMagic(Square::H7),
+    findMagic(Square::G7),
+    findMagic(Square::F7),
+    findMagic(Square::E7),
+    findMagic(Square::D7),
+    findMagic(Square::C7),
+    findMagic(Square::B7),
+    findMagic(Square::A7),
+
+    findMagic(Square::H6),
+    findMagic(Square::G6),
+    findMagic(Square::F6),
+    findMagic(Square::E6),
+    findMagic(Square::D6),
+    findMagic(Square::C6),
+    findMagic(Square::B6),
+    findMagic(Square::A6),
+
+    findMagic(Square::H5),
+    findMagic(Square::G5),
+    findMagic(Square::F5),
+    findMagic(Square::E5),
+    findMagic(Square::D5),
+    findMagic(Square::C5),
+    findMagic(Square::B5),
+    findMagic(Square::A5),
+
+    findMagic(Square::H4),
+    findMagic(Square::G4),
+    findMagic(Square::F4),
+    findMagic(Square::E4),
+    findMagic(Square::D4),
+    findMagic(Square::C4),
+    findMagic(Square::B4),
+    findMagic(Square::A4),
+
+    findMagic(Square::H3),
+    findMagic(Square::G3),
+    findMagic(Square::F3),
+    findMagic(Square::E3),
+    findMagic(Square::D3),
+    findMagic(Square::C3),
+    findMagic(Square::B3),
+    findMagic(Square::A3),
+
+    findMagic(Square::H2),
+    findMagic(Square::G2),
+    findMagic(Square::F2),
+    findMagic(Square::E2),
+    findMagic(Square::D2),
+    findMagic(Square::C2),
+    findMagic(Square::B2),
+    findMagic(Square::A2),
+
+    findMagic(Square::H1),
+    findMagic(Square::G1),
+    findMagic(Square::F1),
+    findMagic(Square::E1),
+    findMagic(Square::D1),
+    findMagic(Square::C1),
+    findMagic(Square::B1),
+    findMagic(Square::A1),
+};
 
