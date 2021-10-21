@@ -10,9 +10,11 @@
 
 #include <Piece.h>
 #include <King.h>
+#include <Queen.h>
 #include <Pawns.h>
 #include <Knight.h>
 #include <Bishop.h>
+#include <Rook.h>
 
 // The board class
 
@@ -41,14 +43,18 @@ class Board {
             std::vector<Piece*>(64, nullptr);
 
         King whiteKing = King(Color::White);
+        Queens whiteQueens = Queens(Color::White);
         Bishops whiteBishops = Bishops(Color::White);
-        Pawns whitePawns = Pawns(Color::White);
         Knights whiteKnights = Knights(Color::White);
+        Rooks whiteRooks = Rooks(Color::White);
+        Pawns whitePawns = Pawns(Color::White);
 
         King blackKing = King(Color::Black);
+        Queens blackQueens = Queens(Color::Black);
         Bishops blackBishops = Bishops(Color::Black);
-        Pawns blackPawns = Pawns(Color::Black);
         Knights blackKnights = Knights(Color::Black);
+        Rooks blackRooks = Rooks(Color::Black);
+        Pawns blackPawns = Pawns(Color::Black);
 
         std::vector<Move> moveList;
         bitboard_t whitePieces;

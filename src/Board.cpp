@@ -11,10 +11,13 @@ Board::Board() {
 
     // White Pieces
     boardArray[static_cast<int>(Square::E1)] = &whiteKing;
+    boardArray[static_cast<int>(Square::D1)] = &whiteQueens;
     boardArray[static_cast<int>(Square::C1)] = &whiteBishops;
     boardArray[static_cast<int>(Square::F1)] = &whiteBishops;
     boardArray[static_cast<int>(Square::B1)] = &whiteKnights;
     boardArray[static_cast<int>(Square::G1)] = &whiteKnights;
+    boardArray[static_cast<int>(Square::A1)] = &whiteRooks;
+    boardArray[static_cast<int>(Square::H1)] = &whiteRooks;
     boardArray[static_cast<int>(Square::A2)] = &whitePawns;
     boardArray[static_cast<int>(Square::B2)] = &whitePawns;
     boardArray[static_cast<int>(Square::C2)] = &whitePawns;
@@ -25,15 +28,19 @@ Board::Board() {
     boardArray[static_cast<int>(Square::H2)] = &whitePawns;
     whitePieces = generateBitboard(std::vector<Square>{
       Square::E1, Square::F1, Square::C1, Square::B1, Square::G1,
-      Square::A2, Square::B2, Square::C2,
-      Square::D2, Square::E2, Square::F2, Square::G2, Square::H2});
+      Square::A2, Square::B2, Square::C2, Square::A1, Square::H1,
+      Square::D2, Square::E2, Square::F2, Square::G2, Square::H2,
+      Square::D1});
 
     // Black Pieces
     boardArray[static_cast<int>(Square::E8)] = &blackKing;
+    boardArray[static_cast<int>(Square::D8)] = &blackQueens;
     boardArray[static_cast<int>(Square::C8)] = &blackBishops;
     boardArray[static_cast<int>(Square::F8)] = &blackBishops;
     boardArray[static_cast<int>(Square::B8)] = &blackKnights;
     boardArray[static_cast<int>(Square::G8)] = &blackKnights;
+    boardArray[static_cast<int>(Square::A8)] = &blackRooks;
+    boardArray[static_cast<int>(Square::H8)] = &blackRooks;
     boardArray[static_cast<int>(Square::A7)] = &blackPawns;
     boardArray[static_cast<int>(Square::B7)] = &blackPawns;
     boardArray[static_cast<int>(Square::C7)] = &blackPawns;
@@ -43,8 +50,9 @@ Board::Board() {
     boardArray[static_cast<int>(Square::G7)] = &blackPawns;
     boardArray[static_cast<int>(Square::H7)] = &blackPawns;
     blackPieces = generateBitboard(std::vector<Square>{
-      Square::E8, Square::C8, Square::F8, Square::B8, Square::G8, Square::A7, Square::B7, Square::C7,
-      Square::D7, Square::E7, Square::F7, Square::G7, Square::H7});
+      Square::E8, Square::C8, Square::F8, Square::B8, Square::G8,
+      Square::A7, Square::B7, Square::C7, Square::D7, Square::E7,
+      Square::F7, Square::G7, Square::H7, Square::A8, Square::H8, Square::D1});
 
 
 }
@@ -58,6 +66,7 @@ void Board::generateMoves() {
     switch (whiteToMove) {
         case true:
             whiteKing.generateMoves(whitePieces, blackPieces, moveList);
+            whiteQueens.generateMoves(whitePieces, blackPieces, moveList);
             whitePawns.generateMoves(whitePieces, blackPieces, moveList);
             whiteKnights.generateMoves(whitePieces, blackPieces, moveList);
             whiteBishops.generateMoves(whitePieces, blackPieces, moveList);
@@ -65,6 +74,7 @@ void Board::generateMoves() {
 
         case false:
             blackKing.generateMoves(whitePieces, blackPieces, moveList);
+            blackQueens.generateMoves(whitePieces, blackPieces, moveList);
             blackPawns.generateMoves(whitePieces, blackPieces, moveList);
             blackKnights.generateMoves(whitePieces, blackPieces, moveList);
             blackBishops.generateMoves(whitePieces, blackPieces, moveList);

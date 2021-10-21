@@ -29,11 +29,13 @@ void Rooks::generateMoves(const bitboard_t & white_pieces,
                 int hash = rookBlocker*magicNums[bit] >>
                     (64-RookLookup::RookBits[bit]);
 
-                //std::cout << "hash: " << hash << "\n";
-
                 bitboard_t attackSet = RookLookup::attackTable[origin][hash];
 
-                std::cout << bitboard_to_string(attackSet);
+                // Remove same color pieces from being able to be taken
+                bitboard_t blocking_pieces = (color==Color::White) ?
+                    white_pieces : black_pieces;
+
+                attackSet = attackSet ^ (attackSet & blocking_pieces);
 
                 // For each allowed move, create a move and add to moveList
                 for (std::size_t allowed_bit=0;
