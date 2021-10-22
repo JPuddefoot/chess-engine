@@ -32,7 +32,7 @@ TEST_CASE("Check can move white piece") {
 
     // Generate starting moves for white and make a move
     board.generateMoves();
-    Move move = board.moveList[2];
+    Move move = board.nextMoveList[2];
     board.makeMove(move.origin, move.destination);
 
     // Check boardArray has updated
@@ -48,7 +48,7 @@ TEST_CASE("Check can move white piece") {
 
     // Generate moves for black and make a move
     board.generateMoves();
-    Move move_black = board.moveList[2];
+    Move move_black = board.nextMoveList[2];
     board.makeMove(move_black.origin, move_black.destination);
 
     // Check whitePieces bitboard has stayed the same
@@ -69,9 +69,9 @@ TEST_CASE("Check can take pieces") {
 
     Move testMoveWhite = Move({Square::E4, Square::D5});
 
-    // Check capturing move is in moveList
+    // Check capturing move is in nextMoveList
     bool moveIsIn = false;
-    for (Move move : board.moveList) {
+    for (Move move : board.nextMoveList) {
         if (move == testMoveWhite)
             moveIsIn = true;
     }

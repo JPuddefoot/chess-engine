@@ -3,6 +3,7 @@
 
 
 #include <string>
+#include <bitset>
 // Define a move:
 //
 // origin square (0-63) where 63 is A1 and 0 is H8
@@ -38,6 +39,7 @@ struct Move
 {
     Square origin;
     Square destination;
+    uint16_t info;
 };
 
 // Method to compare if two moves are the same

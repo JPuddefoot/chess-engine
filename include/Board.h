@@ -33,7 +33,7 @@ class Board {
         bool whiteToMove;
 
         Move makeMove(Square origin, Square destination);
-        void undoMove(Move move);
+        Move undoMove();
         void generateMoves();
 
 
@@ -56,7 +56,12 @@ class Board {
         Rooks blackRooks = Rooks(Color::Black);
         Pawns blackPawns = Pawns(Color::Black);
 
-        std::vector<Move> moveList;
+        std::vector<Piece*> capturedWhitePieces = {};
+        std::vector<Piece*> capturedBlackPieces = {};
+
+        std::vector<Move> moveHistory;
+
+        std::vector<Move> nextMoveList;
         bitboard_t whitePieces;
         bitboard_t blackPieces;
 

@@ -32,8 +32,8 @@ int main() {
   board.generateMoves();
 
  //   std::cout << bitboard_to_string(board.whitePieces);
-
-  for (Move move : board.moveList) {
+/*
+  for (Move move : board.nextMoveList) {
       std::cout << "origin: " << Square_array[static_cast<std::size_t>(move.origin)]
         << "destination: " << Square_array[static_cast<std::size_t>(move.destination)]
         << "\n";
@@ -42,6 +42,17 @@ int main() {
   for (auto const & piece : board.capturedBlackPieces) {
     std::cout << piece << "\n";
   }
+  */
+
+  Move move = board.undoMove();
+
+  std::cout <<board.printBoard();
+
+  std::cout << "origin: " << Square_array[static_cast<std::size_t>(move.origin)]
+    << "destination: " << Square_array[static_cast<std::size_t>(move.destination)]
+    << "info: " << move.info
+    << "\n";
+
 
 
   return 0;
