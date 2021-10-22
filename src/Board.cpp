@@ -27,10 +27,9 @@ Board::Board() {
     boardArray[static_cast<int>(Square::G2)] = &whitePawns;
     boardArray[static_cast<int>(Square::H2)] = &whitePawns;
     whitePieces = generateBitboard(std::vector<Square>{
-      Square::E1, Square::F1, Square::C1, Square::B1, Square::G1,
-      Square::A2, Square::B2, Square::C2, Square::A1, Square::H1,
-      Square::D2, Square::E2, Square::F2, Square::G2, Square::H2,
-      Square::D1});
+      Square::A1, Square::B1, Square::C1, Square::D1, Square::E1, Square::F1,
+      Square::G1, Square::H1, Square::A2, Square::B2, Square::C2, Square::D2,
+      Square::E2, Square::F2, Square::G2, Square::H2});
 
     // Black Pieces
     boardArray[static_cast<int>(Square::E8)] = &blackKing;
@@ -50,9 +49,9 @@ Board::Board() {
     boardArray[static_cast<int>(Square::G7)] = &blackPawns;
     boardArray[static_cast<int>(Square::H7)] = &blackPawns;
     blackPieces = generateBitboard(std::vector<Square>{
-      Square::E8, Square::C8, Square::F8, Square::B8, Square::G8,
-      Square::A7, Square::B7, Square::C7, Square::D7, Square::E7,
-      Square::F7, Square::G7, Square::H7, Square::A8, Square::H8, Square::D1});
+      Square::A8, Square::B8, Square::C8, Square::D8, Square::E8, Square::F8,
+      Square::G8, Square::H8, Square::A7, Square::B7, Square::C7, Square::D7,
+      Square::E7, Square::F7, Square::G7, Square::H7});
 
 
 }
@@ -96,7 +95,8 @@ Move Board::makeMove(Square origin, Square destination) {
 
     bool validMove = (piece_to_move && board_to_move->test(bit_origin));
     if (!validMove) {
-        throw std::runtime_error("No piece of color at origin square: " +
+        std::string colorToMove = (whiteToMove) ? "White" : "Black";
+        throw std::runtime_error("No piece of color: " + colorToMove + " at origin square: " +
             Square_array[bit_origin] + "\n");
     }
 
@@ -175,7 +175,8 @@ Move Board::undoMove() {
 
     bool validMove = (piece_to_move && board_to_move->test(bit_origin));
     if (!validMove) {
-        throw std::runtime_error("No piece of color at origin square: " +
+        std::string colorToMove = (whiteToMove) ? "White" : "Black";
+        throw std::runtime_error("No piece of color: " + colorToMove + " at origin square: " +
             Square_array[bit_origin] + "\n");
     }
 
@@ -201,7 +202,7 @@ Move Board::undoMove() {
         capturedPiece->addPiece(origin);
 
         bitboard_t * board_to_add = (whiteToMove) ? &blackPieces : &whitePieces;
-        board_to_move->flip(bit_origin); // Only flip square where piece added
+        board_to_add->flip(bit_origin); // Only flip square where piece added
 
         // Add piece pointer onto boardArray
         boardArray[bit_origin] = capturedPiece;

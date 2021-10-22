@@ -21,37 +21,38 @@ int main() {
 
   board.generateMoves();
 
-  std::cout << board.printBoard();
-
   board.makeMove(Square::E2, Square::E4);
   board.makeMove(Square::D7, Square::D5);
   board.makeMove(Square::E4, Square::D5);
+  std::cout << board.printBoard();
+  board.makeMove(Square::D8, Square::D5);
 
   std::cout << board.printBoard();
 
-  board.generateMoves();
+  board.undoMove();
 
- //   std::cout << bitboard_to_string(board.whitePieces);
-/*
-  for (Move move : board.nextMoveList) {
-      std::cout << "origin: " << Square_array[static_cast<std::size_t>(move.origin)]
-        << "destination: " << Square_array[static_cast<std::size_t>(move.destination)]
-        << "\n";
-  }
+  std::cout << board.printBoard();
 
-  for (auto const & piece : board.capturedBlackPieces) {
-    std::cout << piece << "\n";
-  }
-  */
+  std::cout << bitboard_to_string(board.whitePieces);
 
-  Move move = board.undoMove();
+  board.undoMove();
 
-  std::cout <<board.printBoard();
+  std::cout << board.printBoard();
 
-  std::cout << "origin: " << Square_array[static_cast<std::size_t>(move.origin)]
-    << "destination: " << Square_array[static_cast<std::size_t>(move.destination)]
-    << "info: " << move.info
-    << "\n";
+  board.undoMove();
+
+  std::cout << board.printBoard();
+
+  board.undoMove();
+
+  std::cout << board.printBoard();
+
+
+
+
+
+
+
 
 
 
