@@ -15,6 +15,8 @@
 
 int main() {
 
+  RookLookup::fillAttackTable();
+
   Board board = Board();
 
   board.generateMoves();
@@ -23,7 +25,7 @@ int main() {
 
   board.makeMove(Square::E2, Square::E4);
   board.makeMove(Square::D7, Square::D5);
-  board.makeMove(Square::E4, Square::E5);
+  board.makeMove(Square::E4, Square::D5);
 
   std::cout << board.printBoard();
 
@@ -37,7 +39,9 @@ int main() {
         << "\n";
   }
 
-
+  for (auto const & piece : board.capturedBlackPieces) {
+    std::cout << piece << "\n";
+  }
 
 
   return 0;

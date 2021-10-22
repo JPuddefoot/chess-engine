@@ -1,6 +1,105 @@
 #include <RookLookup.h>
 #include <iostream>
 
+void RookLookup::fillAttackTableForSquare(Square origin) {
+    // Using prefound magic nums, fill the attackTable
+    uint64_t blockers[4096], attackSets[4096];
+    std::array<uint64_t, 4096> hashTable;
+    int m_bits = RookBits[static_cast<int>(origin)];
+
+    uint64_t mask = rookMask(origin);
+    int numBlockers = count_1s(mask);
+
+    // Go through all possible blocker masks (i.e 0 to 2^numBlockers) and
+    // put them and attackSet into arrays
+    for (int i=0; i < (1 << numBlockers); i++) {
+        blockers[i] = index_to_uint64(i, numBlockers, mask);
+        attackSets[i] = rookAttack(origin, blockers[i]);
+    }
+    uint64_t magic = rookMagicNumbers[static_cast<size_t>(origin)];
+
+    for (int i=0; i < (1 << numBlockers); i++) {
+        int j = transform(blockers[i], magic, m_bits);
+        hashTable[j] = attackSets[i];
+    }
+
+    attackTable[origin] = hashTable;
+}
+
+void RookLookup::fillAttackTable() {
+    fillAttackTableForSquare(Square::A8);
+    fillAttackTableForSquare(Square::B8);
+    fillAttackTableForSquare(Square::C8);
+    fillAttackTableForSquare(Square::D8);
+    fillAttackTableForSquare(Square::E8);
+    fillAttackTableForSquare(Square::F8);
+    fillAttackTableForSquare(Square::G8);
+    fillAttackTableForSquare(Square::H8);
+
+    fillAttackTableForSquare(Square::A7);
+    fillAttackTableForSquare(Square::B7);
+    fillAttackTableForSquare(Square::C7);
+    fillAttackTableForSquare(Square::D7);
+    fillAttackTableForSquare(Square::E7);
+    fillAttackTableForSquare(Square::F7);
+    fillAttackTableForSquare(Square::G7);
+    fillAttackTableForSquare(Square::H7);
+
+    fillAttackTableForSquare(Square::A6);
+    fillAttackTableForSquare(Square::B6);
+    fillAttackTableForSquare(Square::C6);
+    fillAttackTableForSquare(Square::D6);
+    fillAttackTableForSquare(Square::E6);
+    fillAttackTableForSquare(Square::F6);
+    fillAttackTableForSquare(Square::G6);
+    fillAttackTableForSquare(Square::H6);
+
+    fillAttackTableForSquare(Square::A5);
+    fillAttackTableForSquare(Square::B5);
+    fillAttackTableForSquare(Square::C5);
+    fillAttackTableForSquare(Square::D5);
+    fillAttackTableForSquare(Square::E5);
+    fillAttackTableForSquare(Square::F5);
+    fillAttackTableForSquare(Square::G5);
+    fillAttackTableForSquare(Square::H5);
+
+    fillAttackTableForSquare(Square::A4);
+    fillAttackTableForSquare(Square::B4);
+    fillAttackTableForSquare(Square::C4);
+    fillAttackTableForSquare(Square::D4);
+    fillAttackTableForSquare(Square::E4);
+    fillAttackTableForSquare(Square::F4);
+    fillAttackTableForSquare(Square::G4);
+    fillAttackTableForSquare(Square::H4);
+
+    fillAttackTableForSquare(Square::A3);
+    fillAttackTableForSquare(Square::B3);
+    fillAttackTableForSquare(Square::C3);
+    fillAttackTableForSquare(Square::D3);
+    fillAttackTableForSquare(Square::E3);
+    fillAttackTableForSquare(Square::F3);
+    fillAttackTableForSquare(Square::G3);
+    fillAttackTableForSquare(Square::H3);
+
+    fillAttackTableForSquare(Square::A2);
+    fillAttackTableForSquare(Square::B2);
+    fillAttackTableForSquare(Square::C2);
+    fillAttackTableForSquare(Square::D2);
+    fillAttackTableForSquare(Square::E2);
+    fillAttackTableForSquare(Square::F2);
+    fillAttackTableForSquare(Square::G2);
+    fillAttackTableForSquare(Square::H2);
+
+    fillAttackTableForSquare(Square::A1);
+    fillAttackTableForSquare(Square::B1);
+    fillAttackTableForSquare(Square::C1);
+    fillAttackTableForSquare(Square::D1);
+    fillAttackTableForSquare(Square::E1);
+    fillAttackTableForSquare(Square::F1);
+    fillAttackTableForSquare(Square::G1);
+    fillAttackTableForSquare(Square::H1);
+}
+
 uint64_t RookLookup::findMagic(Square origin) {
     // Finds a working magic number for a given square.
     // For every possible blocker board, gets the correct attackSet
@@ -185,6 +284,76 @@ int RookLookup::RookBits[64] = {
     12, 11, 11, 11, 11, 11, 11, 12
 };
 
+// Magic nums found using full magicNums function,
+// using these cos the full function takes ages
+uint64_t const RookLookup::rookMagicNumbers[64] = {
+    756607761056301088,
+    486389076241424385,
+    72092778679042112,
+    2630106649158748161,
+    180146733941000192,
+    648589814731636770,
+    180146184134856832,
+    2918332697065554048,
+    11529355785708503092,
+    1267187687899136,
+    2490631468938694656,
+    293015506591416352,
+    288934097953489024,
+    3096241940480520,
+    2596606664451031552,
+    281616710647938,
+    9719133065330688,
+    1193595738806829072,
+    576745526890856466,
+    360429257568030720,
+    722829389795952768,
+    9223513324166054400,
+    144397214955930112,
+    576744426307850385,
+    140739637952517,
+    1170971088563208264,
+    19799803437186,
+    942527774937055360,
+    5070958365245568,
+    72061994232053888,
+    10385301842383864320,
+    581848436590281801,
+    329150075794096256,
+    72128031505784833,
+    5197155070050832448,
+    288300890958333970,
+    146649081425430530,
+    581105115214119936,
+    4828149286694814032,
+    2323899487900144641,
+    18049857767899136,
+    9223654062661107744,
+    9516248984046403600,
+    1153765998257045536,
+    577591050391027840,
+    5066584209096708,
+    1152939105383088648,
+    4827859488876920833,
+    180144604161573632,
+    63067988042981952,
+    35188671256320,
+    2469116105206038656,
+    2251817001949568,
+    562984581857792,
+    9227893237937669120,
+    2305843628831998464,
+    4647715366276964609,
+    18014538100186369,
+    2307340820539246849,
+    360850989000950818,
+    5231493951774524418,
+    281767035013651,
+    4611687186792841348,
+    10696191184830530,
+};
+
+/*
 uint64_t const RookLookup::rookMagicNumbers[64] = {
     findMagic(Square::H8),
     findMagic(Square::G8),
@@ -258,4 +427,4 @@ uint64_t const RookLookup::rookMagicNumbers[64] = {
     findMagic(Square::B1),
     findMagic(Square::A1),
 };
-
+*/

@@ -13,6 +13,9 @@ class RookLookup {
 
         static const uint64_t rookMagicNumbers[64];
 
+        static void fillAttackTableForSquare(Square origin);
+        static void fillAttackTable();
+
         static std::unordered_map<Square, std::array<uint64_t,4096>>attackTable;
 
         static uint64_t rookMask(Square origin);
