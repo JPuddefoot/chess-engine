@@ -32,7 +32,7 @@ class Board {
         Board();
         bool whiteToMove;
 
-        Move makeMove(Square origin, Square destination);
+        Move makeMove(Move move);
         Move undoMove();
         void generateMoves();
 

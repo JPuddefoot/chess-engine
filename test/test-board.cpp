@@ -33,7 +33,7 @@ TEST_CASE("Check can move white piece") {
     // Generate starting moves for white and make a move
     board.generateMoves();
     Move move = board.nextMoveList[2];
-    board.makeMove(move.origin, move.destination);
+    board.makeMove(move);
 
     // Check boardArray has updated
     CHECK(board.boardArray[static_cast<int>(move.origin)] == nullptr);
@@ -49,7 +49,7 @@ TEST_CASE("Check can move white piece") {
     // Generate moves for black and make a move
     board.generateMoves();
     Move move_black = board.nextMoveList[2];
-    board.makeMove(move_black.origin, move_black.destination);
+    board.makeMove(move_black);
 
     // Check whitePieces bitboard has stayed the same
     CHECK(!board.whitePieces[static_cast<int>(move.origin)]);
@@ -62,8 +62,8 @@ TEST_CASE("Check can take pieces") {
 
     // Move pieces such that white will have a pawn on e5 that can take a pawn
     // d6 and check this move is allowed
-    board.makeMove(Square::E2, Square::E4);
-    board.makeMove(Square::D7, Square::D5);
+    board.makeMove(Move{Square::E2, Square::E4});
+    board.makeMove(Move{Square::D7, Square::D5});
 
     board.generateMoves();
 
@@ -79,7 +79,7 @@ TEST_CASE("Check can take pieces") {
 
     // Capture and check that black piece is removed from board
 
-    board.makeMove(Square::E4, Square::D5);
+    board.makeMove(Move{Square::E4, Square::D5});
 
     CHECK(!board.blackPieces[static_cast<int>(Square::D5)]);
 

@@ -81,7 +81,10 @@ void Board::generateMoves() {
     }
 }
 
-Move Board::makeMove(Square origin, Square destination) {
+Move Board::makeMove(Move move) {
+
+    Square origin = move.origin;
+    Square destination = move.destination;
 
     std::size_t bit_origin = static_cast<std::size_t>(origin);
     std::size_t bit_destination = static_cast<std::size_t>(destination);
@@ -147,7 +150,7 @@ Move Board::makeMove(Square origin, Square destination) {
     whiteToMove = !whiteToMove;
 
     // update the Move with all needed values and add to move_history
-    Move move = Move{origin, destination, info};
+    move.info = info;
 
     moveHistory.push_back(move);
     return move;
