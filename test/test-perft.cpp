@@ -13,15 +13,12 @@ uint64_t perft_test(Board& board, int depth) {
     board.generateMoves();
 
 
-    if (depth == 0) {
+    if (depth == 1) {
         return board.nextMoveList.size();
     }
 
     for (Move move : board.nextMoveList) {
         Move testMove = board.makeMove(move);
-        if ((testMove.info >> 2) & 1UL) {
-            std::cout << "Capture\n";
-        }
         nodes += perft_test(board, depth-1);
         board.undoMove();
         board.generateMoves();
@@ -51,6 +48,21 @@ TEST_CASE("Check Moves from starting position") {
         CHECK(perft_test(board, 3) == 8902);
     }
 
+    SECTION("Check 4 depth (2ply) moves") {
+        Board board = Board();
+        CHECK(perft_test(board, 4) == 197281);
+    }
+
+}
+
+TEST_CASE("Check moves from position 1") {
+    Board board = Board();
+    board.makeMove(Move{Square::A2, Square::A4});
+    board.makeMove(Move{Square::A7, Square::A5});
+
+    std::cout << board.printBoard();
+
+    CHECK(perft_test(board, 1) == 20);
 }
 
 

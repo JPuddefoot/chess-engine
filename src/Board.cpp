@@ -9,6 +9,9 @@ Board::Board() {
 
     whiteToMove = true;
 
+    // Have to fill Rook Attack table here
+    RookLookup::fillAttackTable();
+
     // White Pieces
     boardArray[static_cast<int>(Square::E1)] = &whiteKing;
     boardArray[static_cast<int>(Square::D1)] = &whiteQueens;
@@ -69,6 +72,7 @@ void Board::generateMoves() {
             whitePawns.generateMoves(whitePieces, blackPieces, nextMoveList);
             whiteKnights.generateMoves(whitePieces, blackPieces, nextMoveList);
             whiteBishops.generateMoves(whitePieces, blackPieces, nextMoveList);
+            whiteRooks.generateMoves(whitePieces, blackPieces, nextMoveList);
             break;
 
         case false:
@@ -77,6 +81,7 @@ void Board::generateMoves() {
             blackPawns.generateMoves(whitePieces, blackPieces, nextMoveList);
             blackKnights.generateMoves(whitePieces, blackPieces, nextMoveList);
             blackBishops.generateMoves(whitePieces, blackPieces, nextMoveList);
+            blackRooks.generateMoves(whitePieces, blackPieces, nextMoveList);
             break;
     }
 }

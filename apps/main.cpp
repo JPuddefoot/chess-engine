@@ -21,40 +21,17 @@ int main() {
 
   board.generateMoves();
 
-  board.makeMove(Square::E2, Square::E4);
-  board.makeMove(Square::D7, Square::D5);
-  board.makeMove(Square::E4, Square::D5);
-  std::cout << board.printBoard();
-  board.makeMove(Square::D8, Square::D5);
-
+  board.makeMove(Move{Square::A2, Square::A4});
+  board.makeMove(Move{Square::A7, Square::A5});
   std::cout << board.printBoard();
 
-  board.undoMove();
+  board.generateMoves();
 
-  std::cout << board.printBoard();
+  for (Move move : board.nextMoveList) {
+    std::cout << "Move: " << Square_array[static_cast<int>(move.origin)] << "to" << Square_array[static_cast<int>(move.destination)] << "\n";
+  }
 
-  std::cout << bitboard_to_string(board.whitePieces);
-
-  board.undoMove();
-
-  std::cout << board.printBoard();
-
-  board.undoMove();
-
-  std::cout << board.printBoard();
-
-  board.undoMove();
-
-  std::cout << board.printBoard();
-
-
-
-
-
-
-
-
-
+  std::cout << "No.moves: " << board.nextMoveList.size() << "\n";
 
   return 0;
 }
