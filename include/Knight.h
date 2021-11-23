@@ -29,7 +29,6 @@ class Knights: public Piece {
 
         virtual std::string const & getName() {return name;}
 
-    private:
         static constexpr const std::vector<bitboard_t>* KnightLookup =
             &KnightLookupTable;
 

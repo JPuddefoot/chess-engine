@@ -60,9 +60,33 @@ TEST_CASE("Check moves from position 1") {
     board.makeMove(Move{Square::A2, Square::A4});
     board.makeMove(Move{Square::A7, Square::A5});
 
-    std::cout << board.printBoard();
-
     CHECK(perft_test(board, 1) == 20);
+}
+
+TEST_CASE("Check moves when in check") {
+
+    SECTION("Check when check by diagonal piece") {
+        Board board = Board();
+        board.makeMove(Move{Square::E2, Square::E4});
+        board.makeMove(Move{Square::D7, Square::D5});
+        board.makeMove(Move{Square::F1, Square::B5});
+
+        CHECK(perft_test(board,1) == 5);
+    }
+
+    SECTION("Check when Knight checks") {
+        Board board = Board();
+        board.makeMove(Move{Square::B1, Square::C3});
+        board.makeMove(Move{Square::D7, Square::D5});
+        board.makeMove(Move{Square::C3, Square::D5});
+        board.makeMove(Move{Square::H7, Square::H6});
+        board.makeMove(Move{Square::D5, Square::C7});
+
+        CHECK(perft_test(board, 1) == 2);
+
+    }
+
+
 }
 
 

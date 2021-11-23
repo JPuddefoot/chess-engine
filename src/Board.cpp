@@ -64,25 +64,32 @@ void Board::generateMoves() {
     // Reset moveList
     nextMoveList.clear();
 
+    std::vector<Move> pseudoLegalMoves = {};
+
     // Only generate moves for whose turn it is
     switch (whiteToMove) {
         case true:
-            whiteKing.generateMoves(whitePieces, blackPieces, nextMoveList);
-            whiteQueens.generateMoves(whitePieces, blackPieces, nextMoveList);
-            whitePawns.generateMoves(whitePieces, blackPieces, nextMoveList);
-            whiteKnights.generateMoves(whitePieces, blackPieces, nextMoveList);
-            whiteBishops.generateMoves(whitePieces, blackPieces, nextMoveList);
-            whiteRooks.generateMoves(whitePieces, blackPieces, nextMoveList);
+            whiteKing.generateMoves(whitePieces, blackPieces, pseudoLegalMoves);
+            whiteQueens.generateMoves(whitePieces, blackPieces, pseudoLegalMoves);
+            whitePawns.generateMoves(whitePieces, blackPieces, pseudoLegalMoves);
+            whiteKnights.generateMoves(whitePieces, blackPieces, pseudoLegalMoves);
+            whiteBishops.generateMoves(whitePieces, blackPieces, pseudoLegalMoves);
+            whiteRooks.generateMoves(whitePieces, blackPieces, pseudoLegalMoves);
             break;
 
         case false:
-            blackKing.generateMoves(whitePieces, blackPieces, nextMoveList);
-            blackQueens.generateMoves(whitePieces, blackPieces, nextMoveList);
-            blackPawns.generateMoves(whitePieces, blackPieces, nextMoveList);
-            blackKnights.generateMoves(whitePieces, blackPieces, nextMoveList);
-            blackBishops.generateMoves(whitePieces, blackPieces, nextMoveList);
-            blackRooks.generateMoves(whitePieces, blackPieces, nextMoveList);
+            blackKing.generateMoves(whitePieces, blackPieces, pseudoLegalMoves);
+            blackQueens.generateMoves(whitePieces, blackPieces, pseudoLegalMoves);
+            blackPawns.generateMoves(whitePieces, blackPieces, pseudoLegalMoves);
+            blackKnights.generateMoves(whitePieces, blackPieces, pseudoLegalMoves);
+            blackBishops.generateMoves(whitePieces, blackPieces, pseudoLegalMoves);
+            blackRooks.generateMoves(whitePieces, blackPieces, pseudoLegalMoves);
             break;
+    }
+    for (const Move& move : pseudoLegalMoves) {
+        if (checkLegalMove(move)) {
+            nextMoveList.push_back(move);
+        }
     }
 }
 
@@ -219,6 +226,111 @@ Move Board::undoMove() {
     return lastMove;
 }
 
+// Check that a possible move is legal - i.e move doesn't leave/put king in check
+bool Board::checkLegalMove(const Move& move) {
+    // First make the proposed move, then check if the king is still in check.
+    // This is done by checking if a piece is in the right place to take it -
+    // e.g check all open diagonals and if a oppposite queen or bishop is there
+    // then the king is still in check.
+    // This should be quicker than making the move, generating all possible moves for the opponent
+    // and checking if the king was taken
+
+    makeMove(move);
+
+    // Get the king bitboard for the color that just made the test move
+    // Remember that making move switched the color to move - i.e if white
+    // made the last move then whiteToMove is false
+    bitboard_t king_board = (whiteToMove) ? blackKing.currentPos : whiteKing.currentPos;
+
+    int king_square;
+    // Get the kings position from the bitboard
+    for (std::size_t bit=0; bit<king_board.size(); bit++) {
+        if (king_board.test(bit)) {
+            king_square = bit;
+        }
+    }
+
+    // Rank and file of king position
+    int rank = king_square/8;
+    int file = king_square % 8;
+
+    // Get bitboard of blocking pieces or attacking pieces depending on whose moving
+    uint64_t blocking = (whiteToMove) ? blackPieces.to_ulong() : whitePieces.to_ulong();
+    uint64_t attacking = (whiteToMove) ? whitePieces.to_ulong() : blackPieces.to_ulong();
+
+    // check diagonals
+
+    auto passesDiagonalChecks = [&] ()->bool {
+        for (int r = rank+1, f = file+1, blocks=0; r<=7 && f<=7 && blocks<1; r++, f++) {
+            if (blocking & (1ULL << (f + r*8)))
+                // If there is a piece blocking then the king is not currently in check
+                blocks++;
+            else if (attacking & (1ULL << (f + r*8))) {
+                // Need to check if diagonal enemy piece is queen or bishop
+                std::string pieceType = boardArray[f+r*8]->getName();
+                if (pieceType == "B" || pieceType == "Q" )
+                    return false;
+            }
+
+        }
+        for (int r = rank+1, f = file-1, blocks=0; r<=7 && f>=0 && blocks<1; r++, f--) {
+            if (blocking & (1ULL << (f + r*8)))
+                blocks++;
+            else if (attacking & (1ULL << (f + r*8))) {
+                // Need to check if diagonal enemy piece is queen or bishop
+                std::string pieceType = boardArray[f+r*8]->getName();
+                if (pieceType == "B" || pieceType == "Q" )
+                    return false;
+            }
+        }
+        for (int r = rank-1, f = file+1, blocks=0; r>=0 && f<=7 && blocks<1; r--, f++) {
+            if (blocking & (1ULL << (f + r*8)))
+                blocks++;
+            else if (attacking & (1ULL << (f + r*8))) {
+                // Need to check if diagonal enemy piece is queen or bishop
+                std::string pieceType = boardArray[f+r*8]->getName();
+                if (pieceType == "B" || pieceType == "Q" )
+                    return false;
+            }
+
+        }
+        for (int r = rank-1, f = file-1, blocks=0; r>=0 && f>=0 && blocks<1; r--, f--) {
+            if (blocking & (1ULL << (f+r*8)))
+                blocks++;
+            else if (attacking & (1ULL << (f + r*8))) {
+                // Need to check if diagonal enemy piece is queen or bishop
+                std::string pieceType = boardArray[f+r*8]->getName();
+                if (pieceType == "B" || pieceType == "Q" )
+                    return false;
+            }
+        }
+
+        return true;
+    };
+
+    auto passesKnightChecks = [&] () -> bool {
+        // Get the possible positions a knight could be to check the king
+        bitboard_t knight_attacks = whiteKnights.KnightLookup->at(king_square);
+        bitboard_t enemy_knight_positions = (whiteToMove) ?
+            whiteKnights.currentPos : blackKnights.currentPos;
+
+        if ((knight_attacks & enemy_knight_positions).any()) {
+            // There is a enemy knight giving a check, so cannot do move
+            return false;
+        }
+        return true;
+
+    };
+    // Check en passant moves?
+
+    bool isLegalMove = (passesKnightChecks() && passesDiagonalChecks());
+
+    // Always have to undo move
+    undoMove();
+
+    return isLegalMove;
+
+}
 
 std::string Board::printBoard() {
     std::stringstream ss;

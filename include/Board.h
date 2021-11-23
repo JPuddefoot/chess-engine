@@ -13,6 +13,7 @@
 #include <Queen.h>
 #include <Pawns.h>
 #include <Knight.h>
+#include <KnightLookup.h>
 #include <Bishop.h>
 #include <Rook.h>
 
@@ -35,6 +36,8 @@ class Board {
         Move makeMove(Move move);
         Move undoMove();
         void generateMoves();
+
+        bool checkLegalMove(const Move& move);
 
 
         std::string printBoard();
