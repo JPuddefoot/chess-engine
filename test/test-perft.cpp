@@ -28,6 +28,30 @@ uint64_t perft_test(Board& board, int depth) {
 
 }
 
+// Gives the number of nodes for each possible starting move
+void perft_test_divide() {
+    Board board = Board();
+
+    board.makeMove(Move{Square::G2, Square::G4});
+    board.makeMove(Move{Square::D7, Square::D6});
+    board.generateMoves();
+
+    uint64_t total_nodes = 0;
+
+
+
+    for (Move& move : board.nextMoveList) {
+        board.makeMove(move);
+        uint64_t nodes = perft_test(board, 1);
+        total_nodes += nodes;
+        board.undoMove();
+        board.generateMoves();
+        std::cout << Square_array[static_cast<int>(move.origin)] <<
+            Square_array[static_cast<int>(move.destination)] << " : " << nodes << "\n";
+    }
+    std::cout << "Total: " << total_nodes << "\n";
+}
+
 TEST_CASE("Check Moves from starting position") {
 
 
@@ -65,13 +89,22 @@ TEST_CASE("Check moves from position 1") {
 
 TEST_CASE("Check moves when in check") {
 
-    SECTION("Check when check by diagonal piece") {
+    SECTION("Check when check by Bishop piece") {
         Board board = Board();
         board.makeMove(Move{Square::E2, Square::E4});
         board.makeMove(Move{Square::D7, Square::D5});
         board.makeMove(Move{Square::F1, Square::B5});
 
         CHECK(perft_test(board,1) == 5);
+    }
+
+    SECTION("Check when checked by Queen") {
+        Board board = Board();
+        board.makeMove(Move{Square::C2, Square::C3});
+        board.makeMove(Move{Square::D7, Square::D5});
+        board.makeMove(Move{Square::D1, Square::A4});
+
+        CHECK(perft_test(board,1) == 6);
     }
 
     SECTION("Check when Knight checks") {
@@ -85,8 +118,10 @@ TEST_CASE("Check moves when in check") {
         CHECK(perft_test(board, 1) == 2);
 
     }
+}
 
-
+TEST_CASE("Starting positions and divide") {
+    perft_test_divide();
 }
 
 

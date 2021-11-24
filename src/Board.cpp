@@ -267,9 +267,12 @@ bool Board::checkLegalMove(const Move& move) {
                 blocks++;
             else if (attacking & (1ULL << (f + r*8))) {
                 // Need to check if diagonal enemy piece is queen or bishop
+                // If it is then king is in check, else break and check next diagonal
                 std::string pieceType = boardArray[f+r*8]->getName();
                 if (pieceType == "B" || pieceType == "Q" )
                     return false;
+                else
+                    break;
             }
 
         }
@@ -281,6 +284,8 @@ bool Board::checkLegalMove(const Move& move) {
                 std::string pieceType = boardArray[f+r*8]->getName();
                 if (pieceType == "B" || pieceType == "Q" )
                     return false;
+                else
+                    break;
             }
         }
         for (int r = rank-1, f = file+1, blocks=0; r>=0 && f<=7 && blocks<1; r--, f++) {
@@ -291,6 +296,8 @@ bool Board::checkLegalMove(const Move& move) {
                 std::string pieceType = boardArray[f+r*8]->getName();
                 if (pieceType == "B" || pieceType == "Q" )
                     return false;
+                else
+                    break;
             }
 
         }
@@ -302,6 +309,8 @@ bool Board::checkLegalMove(const Move& move) {
                 std::string pieceType = boardArray[f+r*8]->getName();
                 if (pieceType == "B" || pieceType == "Q" )
                     return false;
+                else
+                    break;
             }
         }
 

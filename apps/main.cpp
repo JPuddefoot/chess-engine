@@ -15,14 +15,14 @@
 
 int main() {
 
-  RookLookup::fillAttackTable();
+
 
   Board board = Board();
   board.printBoard();
 
-  board.makeMove(Move{Square::F2, Square::F3});
-  board.makeMove(Move{Square::E7, Square::E5});
   board.makeMove(Move{Square::G2, Square::G4});
+    board.makeMove(Move{Square::D7, Square::D6});
+  board.makeMove(Move{Square::F1, Square::H3});
   std::cout << board.printBoard();
   board.generateMoves();
 
