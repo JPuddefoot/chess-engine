@@ -35,11 +35,13 @@ const std::string Square_array[64] = {
     "H1", "G1", "F1", "E1", "D1", "C1", "B1", "A1"
 };
 
+// Move info follows the layout here: https://www.chessprogramming.org/Encoding_Moves
+
 struct Move
 {
     Square origin;
     Square destination;
-    uint16_t info;
+    std::bitset<4> info {"0000"};
 };
 
 // Method to compare if two moves are the same

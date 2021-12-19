@@ -100,7 +100,7 @@ Move Board::makeMove(Move move) {
 
     std::size_t bit_origin = static_cast<std::size_t>(origin);
     std::size_t bit_destination = static_cast<std::size_t>(destination);
-    uint16_t info = 0;
+    std::bitset<4> info{"0000"};
 
     // Find the piece to be moved on boardArray and relevant bitboard
     Piece* piece_to_move = boardArray[static_cast<int>(origin)];
@@ -141,7 +141,7 @@ Move Board::makeMove(Move move) {
         // Remove piece from piece bitboard
         piece_at_dest->capturePiece(destination);
         // Update the Move info to show a piece has been taken
-        info |= 1UL << 2;
+        info.set(1);
 
     }
 
@@ -207,7 +207,7 @@ Move Board::undoMove() {
 
     // If there was a piece captured with the move, replace the captured piece
     // The 3rd bit in the info details if a piece was captured on that move
-    if ((lastMove.info >> 2) & 1UL) {
+    if (lastMove.info.test(1)) {
         auto * capturedPieces = (whiteToMove) ? &capturedBlackPieces :
             &capturedWhitePieces;
         Piece* capturedPiece = capturedPieces->back();
