@@ -34,6 +34,7 @@ void perft_test_divide() {
 
     board.makeMove(Move{Square::G2, Square::G4});
     board.makeMove(Move{Square::D7, Square::D6});
+    board.makeMove(Move{Square::G4, Square::G5});
     board.generateMoves();
 
     uint64_t total_nodes = 0;
@@ -54,27 +55,14 @@ void perft_test_divide() {
 
 TEST_CASE("Check Moves from starting position") {
 
-
-    SECTION("Check 1 depth moves") {
-        Board board = Board();
-        uint64_t test = perft_test(board, 1);
-        CHECK(test==20);
-    }
-
-    SECTION("Check 2 depth (i.e 1 ply) moves") {
-        Board board = Board();
-        uint64_t test = perft_test(board, 2);
-        CHECK(test==400);
-    }
-
-    SECTION("Check 3 depth moves") {
-        Board board = Board();
-        CHECK(perft_test(board, 3) == 8902);
-    }
-
     SECTION("Check 4 depth (2ply) moves") {
         Board board = Board();
         CHECK(perft_test(board, 4) == 197281);
+    }
+
+    SECTION("Check 5 depth moves") {
+        Board board = Board();
+        CHECK(perft_test(board, 5) == 4865609);
     }
 
 }
