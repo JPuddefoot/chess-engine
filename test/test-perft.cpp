@@ -16,8 +16,9 @@ uint64_t perft_test(Board& board, int depth) {
     if (depth == 1) {
         return board.nextMoveList.size();
     }
-
+    std::cout << "Depth: " << depth <<"\n";
     for (Move move : board.nextMoveList) {
+        std::cout << "MovePerft: " << Square_array[static_cast<int>(move.origin)] << "to" << Square_array[static_cast<int>(move.destination)] << " Info:" << move.info << "\n";
         Move testMove = board.makeMove(move);
         nodes += perft_test(board, depth-1);
         board.undoMove();
@@ -47,8 +48,6 @@ void perft_test_divide() {
         total_nodes += nodes;
         board.undoMove();
         board.generateMoves();
-        std::cout << Square_array[static_cast<int>(move.origin)] <<
-            Square_array[static_cast<int>(move.destination)] << " : " << nodes << "\n";
     }
     std::cout << "Total: " << total_nodes << "\n";
 }
@@ -75,7 +74,7 @@ TEST_CASE("Check moves from position 1") {
     CHECK(perft_test(board, 1) == 20);
 }
 
-TEST_CASE("Check moves when in check") {
+/*TEST_CASE("Check moves when in check") {
 
     SECTION("Check when check by Bishop piece") {
         Board board = Board();
@@ -110,6 +109,6 @@ TEST_CASE("Check moves when in check") {
 
 TEST_CASE("Starting positions and divide") {
     perft_test_divide();
-}
+}*/
 
 

@@ -68,6 +68,10 @@ class Board {
         bitboard_t whitePieces;
         bitboard_t blackPieces;
 
+    private:
+        void makeEnpassant(const Move & move);
+        void makeCapture(const Move & move, Piece* piece_at_dest);
+
 
 };
 

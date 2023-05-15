@@ -86,6 +86,7 @@ void Board::generateMoves() {
             blackRooks.generateMoves(whitePieces, blackPieces, pseudoLegalMoves);
             break;
     }
+
     for (const Move& move : pseudoLegalMoves) {
         if (checkLegalMove(move)) {
             nextMoveList.push_back(move);
@@ -93,7 +94,65 @@ void Board::generateMoves() {
     }
 }
 
-Move Board::makeMove(Move move) {
+Move Board::makeMove(Move move) { //todo - move can be &move?
+
+    Square origin = move.origin;
+    Square destination = move.destination;
+    std::size_t bit_origin = static_cast<std::size_t>(origin);
+    std::size_t bit_destination = static_cast<std::size_t>(destination);
+    std::bitset<4> info{"0000"};
+
+    // Find the piece to be moved on boardArray and the bitboard
+    Piece* piece_to_move = boardArray[static_cast<int>(origin)];
+    bitboard_t * board_to_move = (whiteToMove) ? &whitePieces : &blackPieces;
+
+    bool validMove = (piece_to_move && board_to_move->test(bit_origin));
+    if (!validMove) {
+        std::string colorToMove = (whiteToMove) ? "White" : "Black";
+        throw std::runtime_error("makeMove: No piece of color: " + colorToMove + " at origin square: " +
+            Square_array[bit_origin] + "\n");
+    }
+
+    // If move is encoded as en passant (done by pawn class)
+    if (move.info == 5) { // i.e 0101
+        makeEnpassant(move);
+    }
+    else {
+        // If move is encoded as a pawn promotion - TODO
+        // if (move.info.at(0)) {
+        //    makePromotion()
+        //}
+
+        // Check if capture move
+        Piece* piece_at_dest = boardArray[bit_destination];
+        if (piece_at_dest) {
+            // update the opposing piece boards
+            makeCapture(move, piece_at_dest);
+            move.info = 4; // records that a capture occurs
+        }
+    }
+
+    // Finalise move - move piece,bitboard and boardArray, add move to
+    // history and change whose turn it is
+
+    piece_to_move->makeMove(origin, destination);
+    board_to_move->flip(bit_origin);
+    board_to_move->flip(bit_destination);
+    boardArray[bit_destination] = piece_to_move;
+    boardArray[bit_origin] = nullptr;
+
+    moveHistory.push_back(move);
+
+    whiteToMove = !whiteToMove;
+    std::cout << "MoveBoard\n";
+    std::cout << printBoard() << "\n";
+
+
+    return move;
+
+}
+
+/*Move Board::makeMove(Move move) {
 
     Square origin = move.origin;
     Square destination = move.destination;
@@ -114,7 +173,6 @@ Move Board::makeMove(Move move) {
         throw std::runtime_error("No piece of color: " + colorToMove + " at origin square: " +
             Square_array[bit_origin] + "\n");
     }
-
 
     // Make the piece move
     piece_to_move->makeMove(origin, destination);
@@ -166,7 +224,7 @@ Move Board::makeMove(Move move) {
 
     moveHistory.push_back(move);
     return move;
-}
+}*/
 
 Move Board::undoMove() {
 
@@ -191,7 +249,10 @@ Move Board::undoMove() {
     bool validMove = (piece_to_move && board_to_move->test(bit_origin));
     if (!validMove) {
         std::string colorToMove = (whiteToMove) ? "White" : "Black";
-        throw std::runtime_error("No piece of color: " + colorToMove + " at origin square: " +
+        std::cout << "Move: " << Square_array[static_cast<int>(lastMove.origin)] << "to" << Square_array[static_cast<int>(lastMove.destination)] << "\n";
+        std::cout << printBoard() << "\n";
+        std::cout << bitboard_to_string(*board_to_move) << "\n";
+        throw std::runtime_error("undoMove: No piece of color: " + colorToMove + " at origin square: " +
             Square_array[bit_origin] + "\n");
     }
 
@@ -207,7 +268,7 @@ Move Board::undoMove() {
 
     // If there was a piece captured with the move, replace the captured piece
     // The 3rd bit in the info details if a piece was captured on that move
-    if (lastMove.info.test(1)) {
+    if (lastMove.info.test(2)) {
         auto * capturedPieces = (whiteToMove) ? &capturedBlackPieces :
             &capturedWhitePieces;
         Piece* capturedPiece = capturedPieces->back();
@@ -236,6 +297,20 @@ bool Board::checkLegalMove(const Move& move) {
     // and checking if the king was taken
 
     makeMove(move);
+
+   /* if (move.info == 1) {
+            std::cout << "ASDASDASD\n";
+            std::cout << "Proposed Move: Origin: ";
+            std::cout << Square_array[static_cast<int>(move.origin)] << " Dest: ";
+            std::cout << Square_array[static_cast<int>(move.destination)] << " Info: ";
+            std::cout << move.info << "\n";
+        }*/
+
+    //std::cout << "Proposed Move: Origin: ";
+    //std::cout << Square_array[static_cast<int>(move.origin)] << " Dest: ";
+    //std::cout << Square_array[static_cast<int>(move.destination)] << " Info: ";
+    //std::cout << move.info << "\n";
+
 
     // Get the king bitboard for the color that just made the test move
     // Remember that making move switched the color to move - i.e if white
@@ -330,15 +405,104 @@ bool Board::checkLegalMove(const Move& move) {
         return true;
 
     };
-    // Check en passant moves?
+    // If move is flagged as en passant, check previous move was double pawn push
+    // from appropiate pawn
+    auto passesEnPassantCheck = [move, this] () -> bool {
 
-    bool isLegalMove = (passesKnightChecks() && passesDiagonalChecks());
+
+
+        // Check if move is encoded as en passant
+        if (move.info != 5) {
+            return true;
+        }
+
+        // Can't have en passant if move history empty Todo: raise error?
+        if (moveHistory.empty()) {
+            return false;
+        }
+        const Move& prevMove = *(moveHistory.rbegin()+1); // rbegin gives  reverse iterator
+
+        /*std::cout << "Move: Origin: ";
+        std::cout << Square_array[static_cast<int>(move.origin)] << " Dest: ";
+        std::cout << Square_array[static_cast<int>(move.destination)] << " Info: ";
+        std::cout << move.info << "\n";
+
+        std::cout << "Prev Move -  Origin: ";
+        std::cout << Square_array[static_cast<int>(prevMove.origin)] << " Dest: ";
+        std::cout << Square_array[static_cast<int>(prevMove.destination)] << " Info: ";
+        std::cout << prevMove.info << "\n";*/
+
+        // Check previous move was a double pawn push, if it was then
+        // check move destination is same file as previous move origin
+        if (prevMove.info == 1) {
+            if (static_cast<int>(prevMove.origin) % 8 == static_cast<int>(move.destination) % 8) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    // TODO: Do I need a passesHorizontalCheck?
+    bool isLegalMove = (passesKnightChecks() && passesDiagonalChecks() && passesEnPassantCheck());
 
     // Always have to undo move
     undoMove();
 
     return isLegalMove;
 
+}
+
+// Deal with capture of other pawn
+void Board::makeEnpassant(const Move & move) {
+
+    // Find which square the opposing pawn to be taken is on
+    // For white, will be row below destination, row above for black
+    std::size_t bit_destination = static_cast<std::size_t>(move.destination);
+    std::size_t oppPawnLoc = (whiteToMove) ?
+        bit_destination + 8: bit_destination - 8;
+
+    Piece * pawn_to_capture = boardArray[oppPawnLoc];
+    if (!pawn_to_capture) {
+        throw std::runtime_error("No pawn at expected destination for en passant");
+    }
+
+    // Add pawn to captured pieces
+    (whiteToMove) ? capturedBlackPieces.push_back(pawn_to_capture):
+        capturedWhitePieces.push_back(pawn_to_capture);
+
+    // Remove pawn from pawn bitboard
+    pawn_to_capture->capturePiece(static_cast<Square>(oppPawnLoc));
+
+    // Update pieces bitboard
+    bitboard_t * captured_board = (whiteToMove) ? &blackPieces : &whitePieces;
+   // std::cout << bitboard_to_string(*captured_board);
+   // std::cout << "Dest: " << bit_destination << "\n";
+   // std::cout << "HI: " << oppPawnLoc << "\n";
+    if (!captured_board->test(oppPawnLoc)){
+        throw std::runtime_error("No pawn at expected position in piece bitboard");
+    }
+    captured_board->flip(oppPawnLoc);
+
+    // Update boardArray - remove pawn at position
+    boardArray[oppPawnLoc] = nullptr;
+}
+
+// Remove captured piece from board and relevant bitboards
+// Also add captured piece to list of captured pieces for correct color
+// Dont need to move capturing piece as done at end of makeMove()
+void Board::makeCapture(const Move & move, Piece* piece_at_dest) {
+
+    // Add captured piece to captured pieces list
+    std::vector<Piece*>& capturedPieceList = (!whiteToMove) ?
+        capturedWhitePieces : capturedBlackPieces;
+    capturedPieceList.push_back(piece_at_dest);
+
+    // Remove piece from pieces bitboard
+    piece_at_dest->capturePiece(move.destination);
+
+    // Remove piece from piece board
+    bitboard_t* captured_board = (!whiteToMove) ? &whitePieces : &blackPieces;
+    captured_board->flip(static_cast<std::size_t>(move.destination));
 }
 
 std::string Board::printBoard() {

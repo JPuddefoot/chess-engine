@@ -103,8 +103,8 @@ TEST_CASE("Check unmoved pawns can advance two unless blocked") {
     SECTION("Check white pawn advanced two squares") {
         Move testMoveWhite = Move{Square::B2, Square::B4};
         for (Move move:moveListWhite) {
-            if (move == testMoveWhite)
-                moveIsIn = true;
+            if (move == testMoveWhite) {
+                moveIsIn = true;}
         }
         CHECK(moveIsIn == true);
     }
@@ -134,8 +134,8 @@ TEST_CASE("Check unmoved pawns can advance two unless blocked") {
         Move testMoveBlack = Move{Square::B7, Square::B5};
 
         for (Move move:moveListBlack) {
-            if (move == testMoveBlack)
-                moveIsIn = true;
+            if (move == testMoveBlack) {
+                moveIsIn = true;}
         }
         CHECK(moveIsIn == true);
     }
@@ -280,5 +280,43 @@ TEST_CASE("Check pawns can take to the right") {
                 moveIsIn = true;
         }
         CHECK(moveIsIn == false);
+    }
+}
+
+TEST_CASE("Check en Passant") {
+    Pawns whitePawns = Pawns(Color::White);
+    Pawns blackPawns = Pawns(Color::Black);
+
+    std::vector<Move> moveListWhite = {};
+    std::vector<Move> moveListBlack = {};
+
+    bitboard_t white_pieces = (whitePawns.currentPos |= generateBitboard(
+        std::vector<Square>{Square::C4, Square::E5}));
+
+    bitboard_t black_pieces = (blackPawns.currentPos |= generateBitboard(
+        std::vector<Square>{Square::F5, Square::D4}));
+
+    whitePawns.generateMoves(white_pieces, black_pieces, moveListWhite);
+    blackPawns.generateMoves(white_pieces, black_pieces, moveListBlack);
+    bool moveIsIn = false;
+
+    SECTION("Check White pawn can take en passant to right") {
+        moveIsIn = false;
+        Move testMoveWhite = Move{Square::E5, Square::F6};
+        for (Move move:moveListWhite) {
+            if (move == testMoveWhite)
+                moveIsIn = true;
+        }
+        CHECK(moveIsIn == true);
+    }
+
+    SECTION("Check black pawn can take en passant to left") {
+        moveIsIn = false;
+        Move testMoveBlack = Move{Square::D4, Square::C3};
+        for (Move move:moveListBlack) {
+            if (move == testMoveBlack)
+                moveIsIn = true;
+        }
+        CHECK(moveIsIn == true);
     }
 }

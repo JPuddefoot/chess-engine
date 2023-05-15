@@ -28,6 +28,10 @@ class Pawns: public Piece {
             const bitboard_t & black_pieces, std::vector<Move> & moveList);
         void attackRight(const bitboard_t & white_pieces,
             const bitboard_t & black_pieces, std::vector<Move> & moveList);
+        void enPassantLeft(const bitboard_t & white_pieces,
+            const bitboard_t & black_pieces, std::vector<Move> & moveList);
+        void enPassantRight(const bitboard_t & white_pieces,
+            const bitboard_t & black_pieces, std::vector<Move> & moveList);
 
 };
 

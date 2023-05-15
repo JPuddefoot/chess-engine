@@ -81,6 +81,7 @@ void Pawns::pushDouble(const bitboard_t & white_pieces,
                 move.origin = static_cast<Square>(bit+16);
             if (color == Color::Black)
                 move.origin = static_cast<Square>(bit-16);
+            move.info.set(0); // Encode move as a double pawn push
             moveList.push_back(move);
         }
     }
@@ -153,6 +154,115 @@ void Pawns::attackRight(const bitboard_t & white_pieces,
     }
 }
 
+// If attacking pawn is on appropiate row and has opposite color piece next to it,
+// do en passant capture (will have more checks higher up if fully legal, i.e
+// opposite piece is a pawn that just double moved last turn)
+void Pawns::enPassantLeft(const bitboard_t & white_pieces,
+    const bitboard_t & black_pieces, std::vector<Move> & moveList) {
+
+    // Remove first file pawn as it cannot attack left (right for black)
+    bitboard_t leftFileMask = generateBitboard(std::vector<Square>{Square::A8,
+        Square::A7, Square::A6, Square::A5, Square::A4, Square::A3, Square::A2,
+        Square::A1});
+
+    bitboard_t shifted_bitboard = currentPos ^ (currentPos & leftFileMask);
+
+    // Only get pawns on 5th row for white or 4th row for black
+    bitboard_t rowSelector;
+
+
+    if (color == Color::White) {
+
+        rowSelector = generateBitboard(std::vector<Square>{
+            Square::A6, Square::B6, Square::C6, Square::D6, Square::E6,
+            Square::F6, Square::G6, Square::H6});
+
+        shifted_bitboard >>= 7;
+
+        shifted_bitboard &= (black_pieces >> 8);
+    }
+
+    if (color == Color::Black) {
+
+        rowSelector = generateBitboard(std::vector<Square>{
+            Square::A3, Square::B3, Square::C3, Square::D3, Square::E3,
+            Square::F3, Square::G3, Square::H3});
+
+        shifted_bitboard <<= 9;
+
+        shifted_bitboard &= (white_pieces << 8);
+    }
+
+    shifted_bitboard &= rowSelector;
+
+
+    for (std::size_t bit = 0; bit<shifted_bitboard.size(); bit++) {
+        if (shifted_bitboard.test(bit)) {
+            Move move;
+            move.destination = static_cast<Square>(bit);
+            if (color == Color::White)
+                move.origin = static_cast<Square>(bit+7);
+            if (color == Color::Black)
+                move.origin = static_cast<Square>(bit-9);
+            move.info = 5; // e.g 0101
+            moveList.push_back(move);
+        }
+    }
+}
+
+// If attacking pawn is on appropiate row and has opposite color piece next to it,
+// do en passant capture (will have more checks higher up if fully legal, i.e
+// opposite piece is a pawn that just double moved last turn)
+void Pawns::enPassantRight(const bitboard_t & white_pieces,
+    const bitboard_t & black_pieces, std::vector<Move> & moveList) {
+
+    bitboard_t rightFileMask = generateBitboard(std::vector<Square>{Square::H8,
+        Square::H7, Square::H6, Square::H5, Square::H4, Square::H3, Square::H2,
+        Square::H1});
+
+    bitboard_t shifted_bitboard = currentPos ^ (currentPos & rightFileMask);
+
+    // Only get pawns on 5th row for white or 4th row for black
+    bitboard_t rowSelector;
+
+    if (color == Color::White) {
+
+        rowSelector = generateBitboard(std::vector<Square>{
+            Square::A6, Square::B6, Square::C6, Square::D6, Square::E6,
+            Square::F6, Square::G6, Square::H6});
+
+        shifted_bitboard >>= 9; // Attack set (right)
+
+        shifted_bitboard &= (black_pieces >> 8); // Shift adjacent opposite pieces back one row
+    }
+
+    if (color == Color::Black) {
+
+        rowSelector = generateBitboard(std::vector<Square>{
+            Square::A3, Square::B3, Square::C3, Square::D3, Square::E3,
+            Square::F3, Square::G3, Square::H3});
+
+        shifted_bitboard <<= 7; // Attack set (right)
+
+        shifted_bitboard &= (white_pieces << 8); // Shift opposite pieces back one row
+    }
+
+    shifted_bitboard &= rowSelector;
+
+    for (std::size_t bit = 0; bit<shifted_bitboard.size(); bit++) {
+        if (shifted_bitboard.test(bit)) {
+            Move move;
+            move.destination = static_cast<Square>(bit);
+            if (color == Color::White)
+                move.origin = static_cast<Square>(bit+9);
+            if (color == Color::Black)
+                move.origin = static_cast<Square>(bit-7);
+            move.info = 5; // e.g 0101
+            moveList.push_back(move);
+        }
+    }
+}
+
 
 void Pawns::generateMoves(const bitboard_t & white_pieces,
     const bitboard_t & black_pieces, std::vector<Move> & moveList) {
@@ -163,5 +273,7 @@ void Pawns::generateMoves(const bitboard_t & white_pieces,
             pushDouble(white_pieces, black_pieces, moveList);
             attackLeft(white_pieces, black_pieces, moveList);
             attackRight(white_pieces, black_pieces, moveList);
+            enPassantLeft(white_pieces, black_pieces, moveList);
+            enPassantRight(white_pieces, black_pieces, moveList);
         }
     }

@@ -82,5 +82,80 @@ TEST_CASE("Check can take pieces") {
     board.makeMove(Move{Square::E4, Square::D5});
 
     CHECK(!board.blackPieces[static_cast<int>(Square::D5)]);
+    CHECK(!board.capturedBlackPieces.empty());
+
+    if (!board.capturedBlackPieces.empty())
+        CHECK(board.capturedBlackPieces.back()->getName() == "P");
+
+}
+
+TEST_CASE("Check enPassant moves") {
+
+
+
+    SECTION("Check basic en passant for white") {
+        // Move pieces so white will have an en passant option
+        Board board = Board();
+        board.makeMove(Move{Square::E2, Square::E4});
+        board.makeMove(Move{Square::D7, Square::D5});
+        board.makeMove(Move{Square::E4, Square::E5});
+        board.makeMove(Move{Square::F7, Square::F5, 1});
+
+
+
+        board.generateMoves();
+
+       // for (Move move : board.nextMoveList) {
+       //     std::cout << "Move: " << Square_array[static_cast<int>(move.origin)] << "to" << Square_array[static_cast<int>(move.destination)] << "\n";
+       // }
+
+       // std::cout << board.printBoard();
+
+        Move testMoveWhite = Move({Square::E5, Square::F6});
+        // Check capturing move is in nextMoveList
+        bool moveIsIn = false;
+        for (Move move : board.nextMoveList) {
+            if (move == testMoveWhite)
+                moveIsIn = true;
+        }
+        CHECK(moveIsIn);
+    }
+
+    SECTION("Check can undo an enpassant move") {
+        Board board = Board();
+        board.makeMove(Move{Square::E2, Square::E4});
+        board.makeMove(Move{Square::D7, Square::D5});
+        board.makeMove(Move{Square::E4, Square::E5});
+        board.makeMove(Move{Square::F7, Square::F5, 1});
+    }
+
+    /*SECTION("Check en passant not an option if after first move") {
+        // Move pieces so white will have an en passant option
+        board.makeMove(Move{Square::E2, Square::E4});
+        board.makeMove(Move{Square::D7, Square::D5});
+        board.makeMove(Move{Square::E4, Square::E5});
+        board.makeMove(Move{Square::F7, Square::F5});
+        board.makeMove(Move{Square::A2, Square::A4});
+        board.makeMove(Move{Square::H7, Square::H5});
+
+        board.generateMoves();
+
+        Move testMoveWhite = Move({Square::E5, Square::F6});
+        // Check capturing move is in nextMoveList
+        bool moveIsIn = false;
+        for (Move move : board.nextMoveList) {
+            if (move == testMoveWhite)
+                moveIsIn = true;
+        }
+        CHECK(!moveIsIn);*/
+
+    //}
+}
+
+TEST_CASE("Check castles") {
+
+}
+
+TEST_CASE("Check promotions") {
 
 }
