@@ -64,6 +64,8 @@ void Board::generateMoves() {
     // Reset moveList
     nextMoveList.clear();
 
+    //std::cout << "gm1: " << printBoard() << "\n";
+
     std::vector<Move> pseudoLegalMoves = {};
 
     // Only generate moves for whose turn it is
@@ -87,11 +89,15 @@ void Board::generateMoves() {
             break;
     }
 
+    //std::cout << "gm2: " << printBoard() << "\n";
+
     for (const Move& move : pseudoLegalMoves) {
         if (checkLegalMove(move)) {
             nextMoveList.push_back(move);
         }
     }
+
+   // std::cout << "gm3: " << printBoard() << "\n";
 }
 
 Move Board::makeMove(Move move) { //todo - move can be &move?
@@ -144,8 +150,8 @@ Move Board::makeMove(Move move) { //todo - move can be &move?
     moveHistory.push_back(move);
 
     whiteToMove = !whiteToMove;
-    std::cout << "MoveBoard\n";
-    std::cout << printBoard() << "\n";
+    //std::cout << "MoveBoard\n";
+    //std::cout << printBoard() << "\n";
 
 
     return move;
@@ -248,10 +254,16 @@ Move Board::undoMove() {
 
     bool validMove = (piece_to_move && board_to_move->test(bit_origin));
     if (!validMove) {
-        std::string colorToMove = (whiteToMove) ? "White" : "Black";
-        std::cout << "Move: " << Square_array[static_cast<int>(lastMove.origin)] << "to" << Square_array[static_cast<int>(lastMove.destination)] << "\n";
+        for (Move move : moveHistory) {
+            std::cout << "Move: " << Square_array[static_cast<int>(move.origin)] << "to" << Square_array[static_cast<int>(move.destination)] << "\n";
+        }
+        std::cout << "Move: " << Square_array[static_cast<int>(lastMove.origin)] << "to" << Square_array[static_cast<int>(lastMove.destination)] <<
+            "Info: " << lastMove.info <<  "\n";
         std::cout << printBoard() << "\n";
         std::cout << bitboard_to_string(*board_to_move) << "\n";
+        std::cout << "PtM: " << piece_to_move << "\n";
+        std::cout << "bTM: " << board_to_move->test(bit_origin) << "\n";
+        std::string colorToMove = (whiteToMove) ? "White" : "Black";
         throw std::runtime_error("undoMove: No piece of color: " + colorToMove + " at origin square: " +
             Square_array[bit_origin] + "\n");
     }
@@ -267,8 +279,8 @@ Move Board::undoMove() {
     boardArray[bit_origin] = nullptr;
 
     // If there was a piece captured with the move, replace the captured piece
-    // The 3rd bit in the info details if a piece was captured on that move
-    if (lastMove.info.test(2)) {
+    // A move with a capture (not en passant!) is has an info=4 (0100)
+    if (lastMove.info == 4) {
         auto * capturedPieces = (whiteToMove) ? &capturedBlackPieces :
             &capturedWhitePieces;
         Piece* capturedPiece = capturedPieces->back();
@@ -284,6 +296,33 @@ Move Board::undoMove() {
         boardArray[bit_origin] = capturedPiece;
     }
 
+
+    // If an enpassant move (info=5), replace captured pawn at the appropiate square
+    // This is the square above/below the origin of the capturing pawn
+    if (lastMove.info == 5) {
+        // Get last captured piece and remove from captured pieces list
+        auto * capturedPieces = (whiteToMove) ? &capturedBlackPieces :
+            &capturedWhitePieces;
+        Piece* capturedPiece = capturedPieces->back();
+        capturedPieces->pop_back();
+
+        // Add the captured pawn back on the board and piece bitboard in the
+        // right place
+
+        // If white to move, (i.e undoing white's move), replace black pawn
+        if (whiteToMove) {
+            capturedPiece->addPiece(static_cast<Square>(bit_origin+8));
+            (&blackPieces)->flip(bit_origin+8);
+            boardArray[bit_origin+8] = capturedPiece;
+
+        }
+        if (!whiteToMove) {
+            capturedPiece->addPiece(static_cast<Square>(bit_origin-8));
+            (&whitePieces)->flip(bit_origin-8);
+            boardArray[bit_origin-8] = capturedPiece;
+        }
+    }
+
     return lastMove;
 }
 
@@ -296,7 +335,11 @@ bool Board::checkLegalMove(const Move& move) {
     // This should be quicker than making the move, generating all possible moves for the opponent
     // and checking if the king was taken
 
+    //std::cout << "clm1: " << printBoard() << "\n";
+
     makeMove(move);
+
+    //std::cout << "MovecLM: " << Square_array[static_cast<int>(move.origin)] << "to" << Square_array[static_cast<int>(move.destination)] << " Info:" << move.info << "\n";
 
    /* if (move.info == 1) {
             std::cout << "ASDASDASD\n";
@@ -409,8 +452,6 @@ bool Board::checkLegalMove(const Move& move) {
     // from appropiate pawn
     auto passesEnPassantCheck = [move, this] () -> bool {
 
-
-
         // Check if move is encoded as en passant
         if (move.info != 5) {
             return true;
@@ -422,16 +463,6 @@ bool Board::checkLegalMove(const Move& move) {
         }
         const Move& prevMove = *(moveHistory.rbegin()+1); // rbegin gives  reverse iterator
 
-        /*std::cout << "Move: Origin: ";
-        std::cout << Square_array[static_cast<int>(move.origin)] << " Dest: ";
-        std::cout << Square_array[static_cast<int>(move.destination)] << " Info: ";
-        std::cout << move.info << "\n";
-
-        std::cout << "Prev Move -  Origin: ";
-        std::cout << Square_array[static_cast<int>(prevMove.origin)] << " Dest: ";
-        std::cout << Square_array[static_cast<int>(prevMove.destination)] << " Info: ";
-        std::cout << prevMove.info << "\n";*/
-
         // Check previous move was a double pawn push, if it was then
         // check move destination is same file as previous move origin
         if (prevMove.info == 1) {
@@ -442,11 +473,16 @@ bool Board::checkLegalMove(const Move& move) {
         return false;
     };
 
+    //std::cout << "clm2: " << printBoard() << "\n";
+
     // TODO: Do I need a passesHorizontalCheck?
     bool isLegalMove = (passesKnightChecks() && passesDiagonalChecks() && passesEnPassantCheck());
 
+    //std::cout << "clm3: " << printBoard() << "\n";
     // Always have to undo move
     undoMove();
+
+    //std::cout << "clm4: " << printBoard() << "\n";
 
     return isLegalMove;
 

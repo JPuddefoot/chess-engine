@@ -170,6 +170,10 @@ void Pawns::enPassantLeft(const bitboard_t & white_pieces,
     // Only get pawns on 5th row for white or 4th row for black
     bitboard_t rowSelector;
 
+    // Opposining pieces bitboard - check that enpassant capture square doesnt
+    // already have an opposing piece in
+    bitboard_t opposingPieces;
+
 
     if (color == Color::White) {
 
@@ -180,6 +184,8 @@ void Pawns::enPassantLeft(const bitboard_t & white_pieces,
         shifted_bitboard >>= 7;
 
         shifted_bitboard &= (black_pieces >> 8);
+
+        opposingPieces = black_pieces;
     }
 
     if (color == Color::Black) {
@@ -191,13 +197,15 @@ void Pawns::enPassantLeft(const bitboard_t & white_pieces,
         shifted_bitboard <<= 9;
 
         shifted_bitboard &= (white_pieces << 8);
+
+        opposingPieces = white_pieces;
     }
 
     shifted_bitboard &= rowSelector;
 
 
     for (std::size_t bit = 0; bit<shifted_bitboard.size(); bit++) {
-        if (shifted_bitboard.test(bit)) {
+        if (shifted_bitboard.test(bit) && !opposingPieces.test(bit)) {
             Move move;
             move.destination = static_cast<Square>(bit);
             if (color == Color::White)
@@ -225,6 +233,9 @@ void Pawns::enPassantRight(const bitboard_t & white_pieces,
     // Only get pawns on 5th row for white or 4th row for black
     bitboard_t rowSelector;
 
+    // Opposining pieces bitboard
+    bitboard_t opposingPieces;
+
     if (color == Color::White) {
 
         rowSelector = generateBitboard(std::vector<Square>{
@@ -234,6 +245,8 @@ void Pawns::enPassantRight(const bitboard_t & white_pieces,
         shifted_bitboard >>= 9; // Attack set (right)
 
         shifted_bitboard &= (black_pieces >> 8); // Shift adjacent opposite pieces back one row
+
+        opposingPieces = black_pieces;
     }
 
     if (color == Color::Black) {
@@ -245,12 +258,14 @@ void Pawns::enPassantRight(const bitboard_t & white_pieces,
         shifted_bitboard <<= 7; // Attack set (right)
 
         shifted_bitboard &= (white_pieces << 8); // Shift opposite pieces back one row
+
+        opposingPieces = white_pieces;
     }
 
     shifted_bitboard &= rowSelector;
 
     for (std::size_t bit = 0; bit<shifted_bitboard.size(); bit++) {
-        if (shifted_bitboard.test(bit)) {
+        if (shifted_bitboard.test(bit) && !opposingPieces.test(bit)) {
             Move move;
             move.destination = static_cast<Square>(bit);
             if (color == Color::White)

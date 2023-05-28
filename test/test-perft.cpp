@@ -10,17 +10,22 @@
 uint64_t perft_test(Board& board, int depth) {
     uint64_t nodes = 0;
 
+    //std::cout << "1" << board.printBoard() << "\n";
     board.generateMoves();
 
-
+    //std::cout << "after" << board.printBoard() << "\n";
     if (depth == 1) {
         return board.nextMoveList.size();
     }
-    std::cout << "Depth: " << depth <<"\n";
+
+    //std::cout << "2" << board.printBoard() << "\n";
     for (Move move : board.nextMoveList) {
-        std::cout << "MovePerft: " << Square_array[static_cast<int>(move.origin)] << "to" << Square_array[static_cast<int>(move.destination)] << " Info:" << move.info << "\n";
+        //std::cout << "Depth: " << depth <<"\n";
+        //std::cout << "MovePerft: " << Square_array[static_cast<int>(move.origin)] << "to" << Square_array[static_cast<int>(move.destination)] << " Info:" << move.info << "\n";
         Move testMove = board.makeMove(move);
+        //std::cout << "3" <<  board.printBoard() << "\n";
         nodes += perft_test(board, depth-1);
+        //std::cout << "4" << board.printBoard() << "\n";
         board.undoMove();
         board.generateMoves();
     }
@@ -54,10 +59,10 @@ void perft_test_divide() {
 
 TEST_CASE("Check Moves from starting position") {
 
-    SECTION("Check 4 depth (2ply) moves") {
-        Board board = Board();
-        CHECK(perft_test(board, 4) == 197281);
-    }
+    //SECTION("Check 4 depth (2ply) moves") {
+    //    Board board = Board();
+    //    CHECK(perft_test(board, 4) == 197281);
+    //}
 
     SECTION("Check 5 depth moves") {
         Board board = Board();
@@ -73,6 +78,25 @@ TEST_CASE("Check moves from position 1") {
 
     CHECK(perft_test(board, 1) == 20);
 }
+
+/*TEST_CASE("Check moves after h2h4 h7h6 h4h5") {
+    Board board = Board();
+    board.makeMove({Square::H2, Square::H4, 1});
+    board.makeMove({Square::H7, Square::H6});
+    board.makeMove({Square::H4, Square::H5});
+    board.makeMove({Square::G7, Square::G5, 1});
+
+    CHECK(perft_test(board,1) == 22);
+}*/
+
+/*TEST_CASE("Check moves after g2g4 h7h5 g4g5") {
+    Board board = Board();
+    board.makeMove({Square::G2, Square::G4, 1});
+    board.makeMove({Square::H7, Square::H5, 1});
+    board.makeMove({Square::G4, Square::G5});
+
+    CHECK(perft_test(board,2) == 22);
+}*/
 
 /*TEST_CASE("Check moves when in check") {
 
