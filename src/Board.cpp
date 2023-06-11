@@ -64,8 +64,6 @@ void Board::generateMoves() {
     // Reset moveList
     nextMoveList.clear();
 
-    //std::cout << "gm1: " << printBoard() << "\n";
-
     std::vector<Move> pseudoLegalMoves = {};
 
     // Only generate moves for whose turn it is
@@ -89,15 +87,12 @@ void Board::generateMoves() {
             break;
     }
 
-    //std::cout << "gm2: " << printBoard() << "\n";
-
     for (const Move& move : pseudoLegalMoves) {
         if (checkLegalMove(move)) {
             nextMoveList.push_back(move);
         }
     }
 
-   // std::cout << "gm3: " << printBoard() << "\n";
 }
 
 Move Board::makeMove(Move move) { //todo - move can be &move?
@@ -148,11 +143,9 @@ Move Board::makeMove(Move move) { //todo - move can be &move?
     boardArray[bit_origin] = nullptr;
 
     moveHistory.push_back(move);
+    //nextMoveList.clear();
 
     whiteToMove = !whiteToMove;
-    //std::cout << "MoveBoard\n";
-    //std::cout << printBoard() << "\n";
-
 
     return move;
 
@@ -254,15 +247,6 @@ Move Board::undoMove() {
 
     bool validMove = (piece_to_move && board_to_move->test(bit_origin));
     if (!validMove) {
-        for (Move move : moveHistory) {
-            std::cout << "Move: " << Square_array[static_cast<int>(move.origin)] << "to" << Square_array[static_cast<int>(move.destination)] << "\n";
-        }
-        std::cout << "Move: " << Square_array[static_cast<int>(lastMove.origin)] << "to" << Square_array[static_cast<int>(lastMove.destination)] <<
-            "Info: " << lastMove.info <<  "\n";
-        std::cout << printBoard() << "\n";
-        std::cout << bitboard_to_string(*board_to_move) << "\n";
-        std::cout << "PtM: " << piece_to_move << "\n";
-        std::cout << "bTM: " << board_to_move->test(bit_origin) << "\n";
         std::string colorToMove = (whiteToMove) ? "White" : "Black";
         throw std::runtime_error("undoMove: No piece of color: " + colorToMove + " at origin square: " +
             Square_array[bit_origin] + "\n");
@@ -335,25 +319,7 @@ bool Board::checkLegalMove(const Move& move) {
     // This should be quicker than making the move, generating all possible moves for the opponent
     // and checking if the king was taken
 
-    //std::cout << "clm1: " << printBoard() << "\n";
-
     makeMove(move);
-
-    //std::cout << "MovecLM: " << Square_array[static_cast<int>(move.origin)] << "to" << Square_array[static_cast<int>(move.destination)] << " Info:" << move.info << "\n";
-
-   /* if (move.info == 1) {
-            std::cout << "ASDASDASD\n";
-            std::cout << "Proposed Move: Origin: ";
-            std::cout << Square_array[static_cast<int>(move.origin)] << " Dest: ";
-            std::cout << Square_array[static_cast<int>(move.destination)] << " Info: ";
-            std::cout << move.info << "\n";
-        }*/
-
-    //std::cout << "Proposed Move: Origin: ";
-    //std::cout << Square_array[static_cast<int>(move.origin)] << " Dest: ";
-    //std::cout << Square_array[static_cast<int>(move.destination)] << " Info: ";
-    //std::cout << move.info << "\n";
-
 
     // Get the king bitboard for the color that just made the test move
     // Remember that making move switched the color to move - i.e if white
@@ -435,6 +401,54 @@ bool Board::checkLegalMove(const Move& move) {
         return true;
     };
 
+    auto passesHorizontalChecks = [&] ()->bool {
+        for (int r = rank+1, blocks=0; r<=7 && blocks<1; r++) {
+            if (blocking & (1ULL << (file + r*8)))
+                blocks++;
+            else if (attacking & (1ULL << (file + r*8))) {
+                std::string pieceType = boardArray[file+r*8]->getName();
+                if (pieceType == "R" || pieceType == "Q")
+                    return false;
+                else
+                    break;
+            }
+        }
+        for (int r = rank-1, blocks=0; r>=0 && blocks<1; r--) {
+            if (blocking & (1ULL << (file + r*8)))
+                blocks++;
+            else if (attacking & (1ULL << (file + r*8))) {
+                std::string pieceType = boardArray[file+r*8]->getName();
+                if (pieceType == "R" || pieceType == "Q")
+                    return false;
+                else
+                    break;
+            }
+        }
+        for (int f = file+1, blocks=0; f<=7 && blocks<1; f++) {
+            if (blocking & (1ULL << (f + rank*8)))
+                blocks++;
+            else if (attacking & (1ULL << (f + rank*8))) {
+                std::string pieceType = boardArray[f+rank*8]->getName();
+                if (pieceType == "R" || pieceType == "Q")
+                    return false;
+                else
+                    break;
+            }
+        }
+        for (int f = file-1, blocks=0; f>=0 && blocks<1; f--) {
+            if (blocking & (1ULL << (f + rank*8)))
+                blocks++;
+            else if (attacking & (1ULL << (f + rank*8))) {
+                std::string pieceType = boardArray[f+rank*8]->getName();
+                if (pieceType == "R" || pieceType == "Q")
+                    return false;
+                else
+                    break;
+            }
+        }
+        return true;
+    };
+
     auto passesKnightChecks = [&] () -> bool {
         // Get the possible positions a knight could be to check the king
         bitboard_t knight_attacks = whiteKnights.KnightLookup->at(king_square);
@@ -444,6 +458,33 @@ bool Board::checkLegalMove(const Move& move) {
         if ((knight_attacks & enemy_knight_positions).any()) {
             // There is a enemy knight giving a check, so cannot do move
             return false;
+        }
+        return true;
+
+    };
+
+    auto passesPawnCaptureChecks = [&] () -> bool {
+        // Check Pawn cannot capture king by shifting pawn position to left/right diagonal
+        // and comparing with king bitboard
+
+        bitboard_t* attackingPawns = (whiteToMove) ? &(whitePawns.currentPos) : &(blackPawns.currentPos);
+
+        // Check attack for white pawns
+        if (whiteToMove) {
+            if (((*attackingPawns >> 7) & king_board).any()) {
+                return false;
+            }
+            if (((*attackingPawns >> 9) & king_board).any()) {
+                return false;
+            }
+        }
+        else {
+            if (((*attackingPawns << 9) & king_board).any()) {
+                return false;
+            }
+            if (((*attackingPawns << 7) & king_board).any()) {
+                return false;
+            }
         }
         return true;
 
@@ -473,16 +514,13 @@ bool Board::checkLegalMove(const Move& move) {
         return false;
     };
 
-    //std::cout << "clm2: " << printBoard() << "\n";
-
     // TODO: Do I need a passesHorizontalCheck?
-    bool isLegalMove = (passesKnightChecks() && passesDiagonalChecks() && passesEnPassantCheck());
+    bool isLegalMove = (passesKnightChecks() && passesDiagonalChecks()
+        && passesEnPassantCheck() && passesHorizontalChecks()
+        && passesPawnCaptureChecks());
 
-    //std::cout << "clm3: " << printBoard() << "\n";
     // Always have to undo move
     undoMove();
-
-    //std::cout << "clm4: " << printBoard() << "\n";
 
     return isLegalMove;
 
@@ -511,9 +549,7 @@ void Board::makeEnpassant(const Move & move) {
 
     // Update pieces bitboard
     bitboard_t * captured_board = (whiteToMove) ? &blackPieces : &whitePieces;
-   // std::cout << bitboard_to_string(*captured_board);
-   // std::cout << "Dest: " << bit_destination << "\n";
-   // std::cout << "HI: " << oppPawnLoc << "\n";
+
     if (!captured_board->test(oppPawnLoc)){
         throw std::runtime_error("No pawn at expected position in piece bitboard");
     }

@@ -11,15 +11,9 @@ int main() {
 
 
   Board board = Board();
-  board.makeMove({Square::H2, Square::H4, 1});
-  board.makeMove({Square::H7, Square::H6});
-  board.makeMove({Square::H4, Square::H5});
-  board.makeMove({Square::G7, Square::G5, 1});
-
-
-  std::cout << board.printBoard() << "\n";
-
-  board.undoMove();
+  board.makeMove({Square::C2, Square::C3});
+    board.makeMove({Square::A7, Square::A6});
+    board.makeMove({Square::D1, Square::A4});
 
   std::cout << board.printBoard() << "\n";
 

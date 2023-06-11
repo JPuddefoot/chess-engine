@@ -152,6 +152,34 @@ TEST_CASE("Check enPassant moves") {
     //}
 }
 
+TEST_CASE("Check kings don't move into pawn capture") {
+
+    SECTION("WHite king black pawn on left") {
+        Board board = Board();
+
+        board.makeMove({Square::D2, Square::D3});
+        board.makeMove({Square::B7, Square::B5,1});
+        board.makeMove({Square::E1, Square::D2});
+
+        board.makeMove({Square::B5, Square::B4});
+        board.generateMoves();
+        CHECK(board.nextMoveList.size() == 21);
+    }
+
+    SECTION("White king black pawn on right") {
+        Board board = Board();
+
+        board.makeMove({Square::D2, Square::D3});
+        board.makeMove({Square::F7, Square::F5, 1});
+        board.makeMove({Square::E1, Square::D2});
+        board.makeMove({Square::F5, Square::F4});
+        board.generateMoves();
+        CHECK(board.nextMoveList.size() == 21);
+
+    }
+
+}
+
 TEST_CASE("Check castles") {
 
 }
@@ -159,3 +187,4 @@ TEST_CASE("Check castles") {
 TEST_CASE("Check promotions") {
 
 }
+
