@@ -23,7 +23,6 @@
 class Knights: public Piece {
     public:
         Knights(Color color);
-        std::string name = "N";
         void generateMoves(const bitboard_t & white_pieces,
             const bitboard_t & black_pieces, std::vector<Move> & moveList);
 

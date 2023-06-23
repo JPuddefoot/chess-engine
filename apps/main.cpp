@@ -10,21 +10,13 @@
 int main() {
 
 
-  Board board = Board();
-  board.makeMove({Square::C2, Square::C3});
-    board.makeMove({Square::A7, Square::A6});
-    board.makeMove({Square::D1, Square::A4});
-
+  Board board = Board("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
+  board.generateMoves();
   std::cout << board.printBoard() << "\n";
 
-  board.generateMoves();
-
+  std::cout << "no.moves = " << board.nextMoveList.size() << "\n";
   for (Move move : board.nextMoveList) {
     std::cout << "Move: " << Square_array[static_cast<int>(move.origin)] << "to" << Square_array[static_cast<int>(move.destination)] << "\n";
   }
-
-  //std::cout << "No.moves: " << board.nextMoveList.size() << "\n";
-
-
   return 0;
 }

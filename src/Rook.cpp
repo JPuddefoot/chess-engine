@@ -4,13 +4,7 @@
 
 Rooks::Rooks(Color color) {
     this->color = color;
-    if (color == Color::White)
-        initialPos = generateBitboard(
-            std::vector<Square>{Square::A1, Square::H1});
-    if (color == Color::Black)
-        initialPos = generateBitboard(
-            std::vector<Square>{Square::A8, Square::H8});
-    currentPos = initialPos;
+    this->name = (color==Color::White) ? "R" : "r";
 };
 
 void Rooks::generateMoves(const bitboard_t & white_pieces,

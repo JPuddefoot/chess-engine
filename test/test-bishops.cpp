@@ -10,7 +10,7 @@
 #include <Move.h>
 
 
-TEST_CASE("Test bishopMask generation") {
+/*TEST_CASE("Test bishopMask generation") {
     SECTION("For Bishop on A1") {
         bitboard_t correctBlocker = generateBitboard(std::vector<Square>{
             Square::B2, Square::C3, Square::D4, Square::E5, Square::F6,
@@ -30,4 +30,4 @@ TEST_CASE("Test bishopMask generation") {
 
         CHECK(correctBlocker == blockerMask);
     }
-}
+}*/

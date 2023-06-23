@@ -13,11 +13,12 @@
 class Pawns: public Piece {
     public:
         Pawns(Color color);
-        std::string name = "P";
         void generateMoves(const bitboard_t & white_pieces,
             const bitboard_t & black_pieces, std::vector<Move> & moveList);
 
         virtual std::string const & getName() {return name;}
+
+        bitboard_t defaultStartPos;
 
     private:
         void pushSingle(const bitboard_t & white_pieces,

@@ -4,14 +4,8 @@
 
 Bishops::Bishops(Color color) {
     this->color = color;
-    if (color == Color::White)
-        initialPos = generateBitboard(
-            std::vector<Square>{Square::C1, Square::F1});
-    if (color == Color::Black)
-        initialPos = generateBitboard(
-            std::vector<Square>{Square::C8, Square::F8});
-    currentPos = initialPos;
-};
+    this->name = (color==Color::White) ? "B" : "b";
+}
 
 // Generate the blocker board from the current board, retrieve magic number
 // and produce hash, get move board from array with hash

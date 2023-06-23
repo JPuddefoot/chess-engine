@@ -4,13 +4,7 @@
 
 Queens::Queens(Color color) {
     this->color = color;
-    if (color == Color::White)
-        initialPos = generateBitboard(
-            std::vector<Square>{Square::D1});
-    if (color == Color::Black)
-        initialPos = generateBitboard(
-            std::vector<Square>{Square::D8});
-    currentPos = initialPos;
+    this->name = (color==Color::White) ? "Q" : "q";
 }
 
 void Queens::generateMoves(const bitboard_t & white_pieces,

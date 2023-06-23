@@ -4,13 +4,7 @@
 
 Knights::Knights(Color color) {
     this->color = color;
-    if (color == Color::White)
-        initialPos = generateBitboard(
-            std::vector<Square>{Square::B1, Square::G1});
-    if (color == Color::Black)
-        initialPos = generateBitboard(
-            std::vector<Square>{Square::B8, Square::G8});
-    currentPos = initialPos;
+    this->name = (color==Color::White) ? "N" : "n";
 };
 
 

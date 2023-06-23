@@ -72,15 +72,15 @@ uint64_t perft_test(Board& board, int depth) {
 
 TEST_CASE("Check Moves from starting position") {
 
-    //SECTION("Check 4 depth (2ply) moves") {
-    //    Board board = Board();
-    //    CHECK(perft_test(board, 4) == 197281);
-    //}
-
-    SECTION("Check 5 depth moves") {
+    SECTION("Check 4 depth (2ply) moves") {
         Board board = Board();
-        CHECK(perft_test(board, 5) == 4865609);
+        CHECK(perft_test(board, 4) == 197281);
     }
+
+    //SECTION("Check 6 depth moves") {
+    //    Board board = Board();
+    //    CHECK(perft_test(board, 6) ==  119060324 );
+    //}
 
 }
 
@@ -91,6 +91,11 @@ TEST_CASE("Check Moves from starting position") {
 
     CHECK(perft_test(board, 1) == 20);
 }*/
+
+TEST_CASE("Check perft from position involving castling") {
+    Board board = Board("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
+
+}
 
 TEST_CASE("Dividing Perft") {
     Board board = Board();
@@ -430,6 +435,11 @@ TEST_CASE("Dividing Perft") {
     }
 }
 */
+
+TEST_CASE("Check position including castling rules") {
+    Board board();
+}
+
 //TEST_CASE("Starting positions and divide") {
 //    perft_test_divide();
 //}

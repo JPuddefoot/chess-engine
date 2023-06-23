@@ -30,7 +30,7 @@
 
 class Board {
     public:
-        Board();
+        Board(std::string fenPosition="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         bool whiteToMove;
 
         Move makeMove(Move move);

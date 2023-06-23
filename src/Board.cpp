@@ -1,61 +1,129 @@
 #include <Board.h>
 #include <iostream>
 
+
 // Initialise board:
 //
 //    - fill board_array with normal starting positions
 //    - Create initial positions in white/black pieces bitboard
-Board::Board() {
+Board::Board(std::string fenPosition) {
 
-    whiteToMove = true;
+    //whiteToMove = true;
 
     // Have to fill Rook Attack table here
     RookLookup::fillAttackTable();
 
-    // White Pieces
-    boardArray[static_cast<int>(Square::E1)] = &whiteKing;
-    boardArray[static_cast<int>(Square::D1)] = &whiteQueens;
-    boardArray[static_cast<int>(Square::C1)] = &whiteBishops;
-    boardArray[static_cast<int>(Square::F1)] = &whiteBishops;
-    boardArray[static_cast<int>(Square::B1)] = &whiteKnights;
-    boardArray[static_cast<int>(Square::G1)] = &whiteKnights;
-    boardArray[static_cast<int>(Square::A1)] = &whiteRooks;
-    boardArray[static_cast<int>(Square::H1)] = &whiteRooks;
-    boardArray[static_cast<int>(Square::A2)] = &whitePawns;
-    boardArray[static_cast<int>(Square::B2)] = &whitePawns;
-    boardArray[static_cast<int>(Square::C2)] = &whitePawns;
-    boardArray[static_cast<int>(Square::D2)] = &whitePawns;
-    boardArray[static_cast<int>(Square::E2)] = &whitePawns;
-    boardArray[static_cast<int>(Square::F2)] = &whitePawns;
-    boardArray[static_cast<int>(Square::G2)] = &whitePawns;
-    boardArray[static_cast<int>(Square::H2)] = &whitePawns;
-    whitePieces = generateBitboard(std::vector<Square>{
-      Square::A1, Square::B1, Square::C1, Square::D1, Square::E1, Square::F1,
-      Square::G1, Square::H1, Square::A2, Square::B2, Square::C2, Square::D2,
-      Square::E2, Square::F2, Square::G2, Square::H2});
+    std::stringstream ss(fenPosition);
+    std::string word;
+    std::vector<std::string> fenBits{};
+    while (ss >> word) {
+        fenBits.push_back(word);
+    }
 
-    // Black Pieces
-    boardArray[static_cast<int>(Square::E8)] = &blackKing;
-    boardArray[static_cast<int>(Square::D8)] = &blackQueens;
-    boardArray[static_cast<int>(Square::C8)] = &blackBishops;
-    boardArray[static_cast<int>(Square::F8)] = &blackBishops;
-    boardArray[static_cast<int>(Square::B8)] = &blackKnights;
-    boardArray[static_cast<int>(Square::G8)] = &blackKnights;
-    boardArray[static_cast<int>(Square::A8)] = &blackRooks;
-    boardArray[static_cast<int>(Square::H8)] = &blackRooks;
-    boardArray[static_cast<int>(Square::A7)] = &blackPawns;
-    boardArray[static_cast<int>(Square::B7)] = &blackPawns;
-    boardArray[static_cast<int>(Square::C7)] = &blackPawns;
-    boardArray[static_cast<int>(Square::D7)] = &blackPawns;
-    boardArray[static_cast<int>(Square::E7)] = &blackPawns;
-    boardArray[static_cast<int>(Square::F7)] = &blackPawns;
-    boardArray[static_cast<int>(Square::G7)] = &blackPawns;
-    boardArray[static_cast<int>(Square::H7)] = &blackPawns;
-    blackPieces = generateBitboard(std::vector<Square>{
-      Square::A8, Square::B8, Square::C8, Square::D8, Square::E8, Square::F8,
-      Square::G8, Square::H8, Square::A7, Square::B7, Square::C7, Square::D7,
-      Square::E7, Square::F7, Square::G7, Square::H7});
+    whiteToMove = (fenBits[1] == "w");
 
+    // To parse fen, have a counter from 0-64  - when have a piece can add
+    // using counter number == square
+    int squareCounter = 0;
+    int fileCounter = 1; // goes up by two for each file
+
+
+    std::vector<Square> whitePiecesList{};
+    std::vector<Square> blackPiecesList{};
+
+    for (auto fenChar : fenBits[0]) {
+        switch (fenChar) {
+            // Go through each piece type and add to piece bitboard and board_array
+            case '/':
+                fileCounter += 2;
+               // squareCounter++;
+                break;
+            case 'r':
+                blackRooks.addPiece(static_cast<Square>(8*fileCounter - squareCounter-1));
+                boardArray[8*fileCounter - squareCounter-1] = &blackRooks;
+                blackPiecesList.push_back(static_cast<Square>(8*fileCounter - squareCounter-1));
+                squareCounter++;
+                break;
+            case 'n':
+                blackKnights.addPiece(static_cast<Square>(8*fileCounter - squareCounter-1));
+                boardArray[8*fileCounter - squareCounter-1] = &blackKnights;
+                blackPiecesList.push_back(static_cast<Square>(8*fileCounter - squareCounter-1));
+                squareCounter++;
+                break;
+
+            case 'b':
+                blackBishops.addPiece(static_cast<Square>(8*fileCounter - squareCounter-1));
+                boardArray[8*fileCounter - squareCounter-1] = &blackBishops;
+                blackPiecesList.push_back(static_cast<Square>(8*fileCounter - squareCounter-1));
+                squareCounter++;
+                break;
+
+            case 'q':
+                blackQueens.addPiece(static_cast<Square>(8*fileCounter - squareCounter-1));
+                boardArray[8*fileCounter - squareCounter-1] = &blackQueens;
+                blackPiecesList.push_back(static_cast<Square>(8*fileCounter - squareCounter-1));
+                squareCounter++;
+                break;
+            case 'k':
+                blackKing.addPiece(static_cast<Square>(8*fileCounter - squareCounter-1));
+                boardArray[8*fileCounter - squareCounter-1] = &blackKing;
+                blackPiecesList.push_back(static_cast<Square>(8*fileCounter - squareCounter-1));
+                squareCounter++;
+                break;
+            case 'p':
+                blackPawns.addPiece(static_cast<Square>(8*fileCounter - squareCounter-1));
+                boardArray[8*fileCounter - squareCounter-1] = &blackPawns;
+                blackPiecesList.push_back(static_cast<Square>(8*fileCounter - squareCounter-1));
+                squareCounter++;
+                break;
+            case 'R':
+                whiteRooks.addPiece(static_cast<Square>(8*fileCounter - squareCounter-1));
+                boardArray[8*fileCounter - squareCounter-1] = &whiteRooks;
+                whitePiecesList.push_back(static_cast<Square>(8*fileCounter - squareCounter-1));
+                squareCounter++;
+                break;
+            case 'N':
+                whiteKnights.addPiece(static_cast<Square>(8*fileCounter - squareCounter-1));
+                boardArray[8*fileCounter - squareCounter-1] = &whiteKnights;
+                whitePiecesList.push_back(static_cast<Square>(8*fileCounter - squareCounter-1));
+                squareCounter++;
+                break;
+
+            case 'B':
+                whiteBishops.addPiece(static_cast<Square>(8*fileCounter - squareCounter-1));
+                boardArray[8*fileCounter - squareCounter-1] = &whiteBishops;
+                whitePiecesList.push_back(static_cast<Square>(8*fileCounter - squareCounter-1));
+                squareCounter++;
+                break;
+
+            case 'Q':
+                whiteQueens.addPiece(static_cast<Square>(8*fileCounter - squareCounter-1));
+                boardArray[8*fileCounter - squareCounter-1] = &whiteQueens;
+                whitePiecesList.push_back(static_cast<Square>(8*fileCounter - squareCounter-1));
+                squareCounter++;
+                break;
+            case 'K':
+                whiteKing.addPiece(static_cast<Square>(8*fileCounter - squareCounter-1));
+                boardArray[8*fileCounter - squareCounter-1] = &whiteKing;
+                whitePiecesList.push_back(static_cast<Square>(8*fileCounter - squareCounter-1));
+                squareCounter++;
+                break;
+            case 'P':
+                whitePawns.addPiece(static_cast<Square>(8*fileCounter - squareCounter-1));
+                boardArray[8*fileCounter - squareCounter-1] = &whitePawns;
+                whitePiecesList.push_back(static_cast<Square>(8*fileCounter - squareCounter-1));
+                squareCounter++;
+                break;
+            default:
+                int count = fenChar - 48; // convert string of a number to an int
+                squareCounter += count;
+                break;
+
+
+        }
+    }
+    whitePieces = generateBitboard(whitePiecesList);
+    blackPieces = generateBitboard(blackPiecesList);
 
 }
 

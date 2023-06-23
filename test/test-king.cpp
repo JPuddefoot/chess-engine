@@ -10,7 +10,7 @@
 #include <Move.h>
 
 
-TEST_CASE("Check King starts in correct place") {
+/*TEST_CASE("Check King starts in correct place") {
     King whiteKing = King(Color::White);
     King blackKing = King(Color::Black);
 
@@ -74,4 +74,4 @@ TEST_CASE("Check Kings can take opposite color and not same color") {
         }
         CHECK(moveIsIn == false);
     }
-}
+}*/

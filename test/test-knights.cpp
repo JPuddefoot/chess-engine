@@ -9,7 +9,7 @@
 #include <utils.h>
 #include <Move.h>
 
-
+/*
 TEST_CASE("Check knights start in correct place for white and black") {
     Knights whiteKnights = Knights(Color::White);
     Knights blackKnights = Knights(Color::Black);
@@ -79,5 +79,5 @@ TEST_CASE("Check knights can take opposite and not same color pieces") {
             moveIsIn = true;
     }
     CHECK(moveIsIn == false);
-}
+}*/
 

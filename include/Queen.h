@@ -2,6 +2,7 @@
 #define Queen_H
 
 #include <vector>
+#include <algorithm>
 
 #include <Move.h>
 #include <utils.h>
@@ -17,7 +18,6 @@
 class Queens: public Piece {
     public:
         Queens(Color color);
-        std::string name = "Q";
         void generateMoves(const bitboard_t & white_pieces,
             const bitboard_t & black_pieces, std::vector<Move> & moveList);
 

@@ -16,7 +16,6 @@
 class Rooks: public Piece {
     public:
         Rooks(Color color);
-        std::string name = "R";
         void generateMoves(const bitboard_t & white_pieces,
             const bitboard_t & black_pieces, std::vector<Move> & moveList);
 

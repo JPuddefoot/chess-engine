@@ -3,13 +3,7 @@
 
 King::King(Color color) {
     this->color = color;
-    if (color == Color::White)
-        initialPos = generateBitboard(
-            std::vector<Square>{Square::E1});
-    if (color == Color::Black)
-        initialPos = generateBitboard(
-            std::vector<Square>{Square::E8});
-    currentPos = initialPos;
+    this->name = (color==Color::White) ? "K" : "k";
 }
 
 

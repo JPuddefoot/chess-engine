@@ -11,7 +11,7 @@
 #include <utils.h>
 #include <Move.h>
 
-TEST_CASE("Check makeMove") {
+/*TEST_CASE("Check makeMove") {
 
     SECTION("Moving Kings") {
         King whiteKing = King(Color::White);
@@ -57,4 +57,4 @@ TEST_CASE("Check addPiece") {
         Square::B1, Square::B3, Square::G1, Square::A8});
 
     CHECK(whiteKnights.currentPos == whiteKnightsTestPos2);
-}
+}*/

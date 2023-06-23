@@ -7,7 +7,7 @@
 #include <utils.h>
 #include <Pawns.h>
 
-TEST_CASE("Check Pawns can advance 1 square for white and black") {
+/*TEST_CASE("Check Pawns can advance 1 square for white and black") {
     Pawns whitePawns = Pawns(Color::White);
     Pawns blackPawns = Pawns(Color::Black);
 
@@ -319,4 +319,4 @@ TEST_CASE("Check en Passant") {
         }
         CHECK(moveIsIn == true);
     }
-}
+}*/

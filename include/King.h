@@ -21,7 +21,6 @@
 class King: public Piece {
     public:
         King(Color color);
-        std::string name = "K";
         void generateMoves(const bitboard_t & white_pieces,
             const bitboard_t & black_pieces, std::vector<Move> & moveList);
 

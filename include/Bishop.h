@@ -16,7 +16,6 @@
 class Bishops: public Piece {
     public:
         Bishops(Color color);
-        std::string name = "B";
         void generateMoves(const bitboard_t & white_pieces,
             const bitboard_t & black_pieces, std::vector<Move> & moveList);
 

@@ -5,18 +5,15 @@
 
 Pawns::Pawns(Color color) {
     this->color = color;
-
+    this->name = (color==Color::White) ? "P" : "p";
     if (color == Color::White)
-        initialPos = generateBitboard(
-            std::vector<Square>{Square::A2, Square::B2, Square::C2, Square::D2,
-            Square::E2, Square::F2, Square::G2, Square::H2});
-
-    if (color == Color::Black)
-        initialPos = generateBitboard(
-            std::vector<Square>{Square::A7, Square::B7, Square::C7, Square::D7,
-            Square::E7, Square::F7, Square::G7, Square::H7});
-
-    currentPos = initialPos;
+        defaultStartPos = generateBitboard(std::vector<Square>{Square::A2,
+            Square::B2, Square::C2, Square::D2, Square::E2, Square::F2,
+            Square::G2, Square::H2});
+    else if (color == Color::Black)
+        defaultStartPos = generateBitboard(std::vector<Square>{Square::A7,
+            Square::B7, Square::C7, Square::D7, Square::E7, Square::F7,
+            Square::G7, Square::H7});
 }
 
 // Add all possible pawn single pushes to moveList
@@ -55,7 +52,7 @@ void Pawns::pushDouble(const bitboard_t & white_pieces,
     const bitboard_t & black_pieces, std::vector<Move> & moveList) {
 
     // check which pawns are in initial position
-    bitboard_t allowed_double = currentPos & initialPos;
+    bitboard_t allowed_double = currentPos & defaultStartPos;
     // shift by 2 rows
     if (color == Color::White) {
         allowed_double = (allowed_double >> 16);
