@@ -21,7 +21,7 @@ TEST_CASE("Check Board correctly initialised") {
 
     // Check Kings in correct place
     CHECK(board.boardArray[static_cast<int>(Square::E1)]->getName() == "K");
-    CHECK(board.boardArray[static_cast<int>(Square::E8)]->getName() == "K");
+    CHECK(board.boardArray[static_cast<int>(Square::E8)]->getName() == "k");
     CHECK(board.whitePieces.test(static_cast<int>(Square::E1)));
     CHECK(board.blackPieces.test(static_cast<int>(Square::E8)));
 
@@ -85,7 +85,7 @@ TEST_CASE("Check can take pieces") {
     CHECK(!board.capturedBlackPieces.empty());
 
     if (!board.capturedBlackPieces.empty())
-        CHECK(board.capturedBlackPieces.back()->getName() == "P");
+        CHECK(board.capturedBlackPieces.back()->getName() == "p");
 
 }
 

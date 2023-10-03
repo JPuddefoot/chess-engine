@@ -7,8 +7,7 @@ King::King(Color color) {
 }
 
 
-// TODO - does it make sense to have a bitboard for just one piece = could just store position?
-void King::generateMoves(const bitboard_t & white_pieces,
+void King::generateStandardMoves(const bitboard_t & white_pieces,
     const bitboard_t & black_pieces, std::vector<Move> & moveList) {
 
     for (std::size_t bit=0; bit<currentPos.size(); bit++) {
@@ -33,5 +32,55 @@ void King::generateMoves(const bitboard_t & white_pieces,
             }
         }
     }
+
+}
+
+void King::generateCastlingMoves(const bitboard_t & white_pieces,
+    const bitboard_t & black_pieces, std::vector<Move> & moveList) {
+
+    bitboard_t* kingsideCastleCheck;
+    bitboard_t* queensideCastleCheck;
+
+    if (color == Color::White) {
+        kingsideCastleCheck = &whiteKingsideCastleCheck;
+        queensideCastleCheck = &whiteQueensideCastleCheck;
+
+        if (!(*kingsideCastleCheck & (white_pieces | black_pieces)).any()) {
+            moveList.push_back(Move{Square::E1, Square::G1, 2}); // 2 = kingside castle
+        }
+
+        if (!(*queensideCastleCheck & (white_pieces | black_pieces)).any()) {
+            moveList.push_back(Move{Square::E1, Square::C1, 3}); // 3 = queenside castle
+        }
+
+    }
+    else {
+        kingsideCastleCheck = &blackKingsideCastleCheck;
+        queensideCastleCheck = &blackQueensideCastleCheck;
+
+        if (!(*kingsideCastleCheck & (white_pieces | black_pieces)).any()) {
+            moveList.push_back(Move{Square::E8, Square::G8, 2}); // 2 = kingside castle
+        }
+
+        if (!(*queensideCastleCheck & (white_pieces | black_pieces)).any()) {
+            moveList.push_back(Move{Square::E8, Square::C8, 3}); // 3 = queenside castle
+        }
+    }
+
+
+
+
+}
+
+// TODO - does it make sense to have a bitboard for just one piece = could just store position?
+void King::generateMoves(const bitboard_t & white_pieces,
+    const bitboard_t & black_pieces, std::vector<Move> & moveList) {
+
+    generateStandardMoves(white_pieces, black_pieces, moveList);
+
+    if ((currentPos & defaultStartPos).any()) {
+        generateCastlingMoves(white_pieces, black_pieces, moveList);
+    }
+
 };
 

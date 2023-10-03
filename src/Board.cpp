@@ -182,6 +182,56 @@ Move Board::makeMove(Move move) { //todo - move can be &move?
             Square_array[bit_origin] + "\n");
     }
 
+    // Castling Rules - Move relevant rook (don't add to move history)
+    // Need to check if king moves are all legal - in checkLegalMoves?
+    if (move.info == 2) {
+        Piece* rook_to_move;
+        Square rook_origin;
+        Square rook_destination;
+        if (whiteToMove) {
+            rook_to_move = boardArray[static_cast<int>(Square::H1)];
+            rook_origin = Square::H1;
+            rook_destination = Square::F1;
+
+        }
+        else {
+            rook_to_move = boardArray[static_cast<int>(Square::H8)];
+            rook_origin = Square::H8;
+            rook_destination = Square::F8;
+        }
+        rook_to_move->makeMove(rook_origin, rook_destination);
+        std::size_t bit_origin_castle = static_cast<std::size_t>(rook_origin);
+        std::size_t bit_dest_castle = static_cast<std::size_t>(rook_destination);
+        board_to_move->flip(bit_dest_castle);
+        board_to_move->flip(bit_origin_castle);
+        boardArray[bit_dest_castle] = rook_to_move;
+        boardArray[bit_origin_castle] = nullptr;
+    }
+
+    if (move.info == 3) {
+        Piece* rook_to_move;
+        Square rook_origin;
+        Square rook_destination;
+        if (whiteToMove) {
+            rook_to_move = boardArray[static_cast<int>(Square::A1)];
+            rook_origin = Square::A1;
+            rook_destination = Square::D1;
+
+        }
+        else {
+            rook_to_move = boardArray[static_cast<int>(Square::A8)];
+            rook_origin = Square::A8;
+            rook_destination = Square::D8;
+        }
+        rook_to_move->makeMove(rook_origin, rook_destination);
+        std::size_t bit_origin_castle = static_cast<std::size_t>(rook_origin);
+        std::size_t bit_dest_castle = static_cast<std::size_t>(rook_destination);
+        board_to_move->flip(bit_dest_castle);
+        board_to_move->flip(bit_origin_castle);
+        boardArray[bit_dest_castle] = rook_to_move;
+        boardArray[bit_origin_castle] = nullptr;
+    }
+
     // If move is encoded as en passant (done by pawn class)
     if (move.info == 5) { // i.e 0101
         makeEnpassant(move);
@@ -219,79 +269,6 @@ Move Board::makeMove(Move move) { //todo - move can be &move?
 
 }
 
-/*Move Board::makeMove(Move move) {
-
-    Square origin = move.origin;
-    Square destination = move.destination;
-
-    std::size_t bit_origin = static_cast<std::size_t>(origin);
-    std::size_t bit_destination = static_cast<std::size_t>(destination);
-    std::bitset<4> info{"0000"};
-
-    // Find the piece to be moved on boardArray and relevant bitboard
-    Piece* piece_to_move = boardArray[static_cast<int>(origin)];
-    bitboard_t * board_to_move = (whiteToMove) ? &whitePieces : &blackPieces;
-
-    // Check a piece exists for both - if not then throw error
-
-    bool validMove = (piece_to_move && board_to_move->test(bit_origin));
-    if (!validMove) {
-        std::string colorToMove = (whiteToMove) ? "White" : "Black";
-        throw std::runtime_error("No piece of color: " + colorToMove + " at origin square: " +
-            Square_array[bit_origin] + "\n");
-    }
-
-    // Make the piece move
-    piece_to_move->makeMove(origin, destination);
-    // Update the current bitboard for origin/destination
-    board_to_move->flip(bit_origin);
-    board_to_move->flip(bit_destination);
-
-
-    //////////////
-    // Captures //
-    //////////////
-
-    // Have temp pointer to current piece if any on destination
-    Piece * piece_at_dest = boardArray[static_cast<int>(destination)];
-
-    if (piece_at_dest) {
-        // Need to add piece to correct capturedPieces list
-        if (whiteToMove) {
-            capturedBlackPieces.push_back(piece_at_dest);
-        }
-        else {
-            capturedWhitePieces.push_back(piece_at_dest);
-        }
-        // Remove piece from piece bitboard
-        piece_at_dest->capturePiece(destination);
-        // Update the Move info to show a piece has been taken
-        info.set(1);
-
-    }
-
-    // If piece of other type was captured, update other board
-    bitboard_t * captured_board = (!whiteToMove) ? &whitePieces : &blackPieces;
-    if (captured_board->test(bit_destination)) {
-        captured_board->flip(bit_destination);
-    }
-
-    // Update the boardArray with the new position - overwrites old piece
-    boardArray[static_cast<int>(destination)] = piece_to_move;
-    boardArray[static_cast<int>(origin)] = nullptr;
-
-    //////////////////
-    //////////////////
-
-    // Change who's move it is
-    whiteToMove = !whiteToMove;
-
-    // update the Move with all needed values and add to move_history
-    move.info = info;
-
-    moveHistory.push_back(move);
-    return move;
-}*/
 
 Move Board::undoMove() {
 
@@ -329,6 +306,55 @@ Move Board::undoMove() {
     // Update boardArray with new position
     boardArray[bit_destination] = piece_to_move;
     boardArray[bit_origin] = nullptr;
+
+    // Castling Rules
+
+    // Kingside castle
+    if (lastMove.info == 2) {
+        Piece* rook_to_move;
+        Square rook_origin;
+        Square rook_destination;
+        if (whiteToMove) {
+            rook_to_move = boardArray[static_cast<int>(Square::F1)];
+            rook_origin = Square::F1;
+            rook_destination = Square::H1;
+        }
+        else {
+            rook_to_move = boardArray[static_cast<int>(Square::F8)];
+            rook_origin = Square::F8;
+            rook_destination = Square::H8;
+        }
+        rook_to_move->makeMove(rook_origin, rook_destination);
+        std::size_t bit_origin_castle = static_cast<std::size_t>(rook_origin);
+        std::size_t bit_dest_castle = static_cast<std::size_t>(rook_destination);
+        board_to_move->flip(bit_dest_castle);
+        board_to_move->flip(bit_origin_castle);
+        boardArray[bit_dest_castle] = rook_to_move;
+        boardArray[bit_origin_castle] = nullptr;
+    }
+    // Quuenside castle
+    if (lastMove.info == 3) {
+        Piece* rook_to_move;
+        Square rook_origin;
+        Square rook_destination;
+        if (whiteToMove) {
+            rook_to_move = boardArray[static_cast<int>(Square::D1)];
+            rook_origin = Square::D1;
+            rook_destination = Square::A1;
+        }
+        else {
+            rook_to_move = boardArray[static_cast<int>(Square::D8)];
+            rook_origin = Square::D8;
+            rook_destination = Square::A8;
+        }
+        rook_to_move->makeMove(rook_origin, rook_destination);
+        std::size_t bit_origin_castle = static_cast<std::size_t>(rook_origin);
+        std::size_t bit_dest_castle = static_cast<std::size_t>(rook_destination);
+        board_to_move->flip(bit_dest_castle);
+        board_to_move->flip(bit_origin_castle);
+        boardArray[bit_dest_castle] = rook_to_move;
+        boardArray[bit_origin_castle] = nullptr;
+    }
 
     // If there was a piece captured with the move, replace the captured piece
     // A move with a capture (not en passant!) is has an info=4 (0100)
@@ -386,6 +412,39 @@ bool Board::checkLegalMove(const Move& move) {
     // then the king is still in check.
     // This should be quicker than making the move, generating all possible moves for the opponent
     // and checking if the king was taken
+
+    // If move is a castling move, move king through the individual squares crossed
+    // and check that these would be legal moves as well
+    if (move.info == 2) {
+        bool step1;
+        bool step2;
+        if (whiteToMove) {
+            step1 = checkLegalMove(Move{Square::E1, Square::F1});
+            step2 = checkLegalMove(Move{Square::E1, Square::G1});
+        }
+        else {
+            step1 = checkLegalMove(Move{Square::E8, Square::F8});
+            step2 = checkLegalMove(Move{Square::E8, Square::G8});
+        }
+
+        return (step1 && step2);
+    }
+
+    if (move.info == 3) {
+        bool step1;
+        bool step2;
+        if (whiteToMove) {
+            step1 = checkLegalMove(Move{Square::E1, Square::D1});
+            step2 = checkLegalMove(Move{Square::E1, Square::C1});
+        }
+        else {
+            step1 = checkLegalMove(Move{Square::E8, Square::D8});
+            step2 = checkLegalMove(Move{Square::E8, Square::C8});
+        }
+
+        return (step1 && step2);
+    }
+
 
     makeMove(move);
 
