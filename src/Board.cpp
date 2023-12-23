@@ -480,7 +480,7 @@ bool Board::checkLegalMove(const Move& move) {
                 // Need to check if diagonal enemy piece is queen or bishop
                 // If it is then king is in check, else break and check next diagonal
                 std::string pieceType = boardArray[f+r*8]->getName();
-                if (pieceType == "B" || pieceType == "Q" )
+                if (pieceType == "B" || pieceType == "Q" || pieceType == "b" || pieceType == "q")
                     return false;
                 else
                     break;
@@ -493,7 +493,7 @@ bool Board::checkLegalMove(const Move& move) {
             else if (attacking & (1ULL << (f + r*8))) {
                 // Need to check if diagonal enemy piece is queen or bishop
                 std::string pieceType = boardArray[f+r*8]->getName();
-                if (pieceType == "B" || pieceType == "Q" )
+                if (pieceType == "B" || pieceType == "Q" || pieceType == "b" || pieceType == "q")
                     return false;
                 else
                     break;
@@ -505,7 +505,7 @@ bool Board::checkLegalMove(const Move& move) {
             else if (attacking & (1ULL << (f + r*8))) {
                 // Need to check if diagonal enemy piece is queen or bishop
                 std::string pieceType = boardArray[f+r*8]->getName();
-                if (pieceType == "B" || pieceType == "Q" )
+                if (pieceType == "B" || pieceType == "Q" || pieceType == "b" || pieceType == "q")
                     return false;
                 else
                     break;
@@ -518,7 +518,7 @@ bool Board::checkLegalMove(const Move& move) {
             else if (attacking & (1ULL << (f + r*8))) {
                 // Need to check if diagonal enemy piece is queen or bishop
                 std::string pieceType = boardArray[f+r*8]->getName();
-                if (pieceType == "B" || pieceType == "Q" )
+                if (pieceType == "B" || pieceType == "Q" || pieceType == "b" || pieceType == "q")
                     return false;
                 else
                     break;

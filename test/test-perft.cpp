@@ -436,12 +436,19 @@ TEST_CASE("Dividing Perft") {
 }
 */
 
-TEST_CASE("Check position including castling rules") {
+/*TEST_CASE("Check position including castling rules") {
     Board board("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -");
     board.generateMoves();
     //board.makeMove(board.nextMoveList.at(3));
     CHECK(perft_test(board, 3) == 2039);
 
+}*/
+
+TEST_CASE("Check position with pos 4 from chess engine wiki") {
+    Board board("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
+    //board.generateMoves();
+    std::cout << board.printBoard();
+    CHECK(perft_test(board, 2) == 264);
 }
 
 //TEST_CASE("Starting positions and divide") {
